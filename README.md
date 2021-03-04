@@ -1,3 +1,6 @@
+Purpose of this project is to leverage reviews about major delivery companies that are operating in the UK, and perform NLP tasks to analyze different aspects of the reviews like the sentiment, most common words, probability distributions across word sequences, and more.
+
+
 ```mermaid
 graph   LR
     A[Get reviews from web] -->|Build a web scraping tool| B[Clean reviews]

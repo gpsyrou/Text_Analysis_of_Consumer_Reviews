@@ -15,9 +15,10 @@ page_content = request.content
 
 tree = html.fromstring(page_content)
 
-ratingCount = tree.xpath('//span[@class="headline__review-count"]')
-ratingCount = int(ratingCount[0].text.replace(',',''))
+def getOverallRatingCount(tree):
+    ratingCount = tree.xpath('//span[@class="headline__review-count"]')
+    return int(ratingCount[0].text.replace(',',''))
+   
 
-def getOverallRatingCount():
-    
-    totalNumberOfReviews =     
+t = tree.xpath('//span[@class="review-content__text"]')
+

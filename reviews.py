@@ -10,6 +10,10 @@ import urllib
 target_url = 'https://uk.trustpilot.com/review/www.deliveroo.co.uk'
 
 
+class NoDataRetrievedError(Exception):
+    def __init__(self):
+        self.msg = 'No data could be retrieved or field was empty'
+
 def getHTMLObject(target_url: str) -> BeautifulSoup:
     '''
     Given a website link (URL), retrieve the corresponding website in an html
@@ -60,7 +64,18 @@ def getReviewTitle(review: element.Tag, title_att='review-content__title') -> st
     if title:
         return title[0].strip()
     else:
-        print('No Title could be retrieved')
+        raise NoDataRetrievedError
 
 getReviewTitle(test[0])
+
+
+def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
+    text_obj = review.find_all('p', attrs={'class': text_att})
+    text = [obj.get_text() for obj in text_obj]
+    if text:
+        return text[0].strip()
+    else:
+        raise NoDataRetrievedError
+
+getReviewText(test[0])
 

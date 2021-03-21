@@ -6,14 +6,10 @@ from bs4 import BeautifulSoup
 
 import urllib
 
-target_url = 'https://uk.trustpilot.com/review/www.deliveroo.co.uk/fufu'
+target_url = 'https://uk.trustpilot.com/review/www.deliveroo.co.uk'
 
 
-reponse_html.find_all("div", {"class": "headline__review-count"})
-
-
-
-def getHTMLObject(target_url: str):
+def getHTMLObject(target_url: str) -> BeautifulSoup:
     '''
     Given a website link (URL), retrieve the corresponding website in an html
     format.
@@ -35,5 +31,11 @@ def getHTMLObject(target_url: str):
 
 test_html = getHTMLObject(target_url)
 print(test_html.prettify())
+
+
+def extractTotalNumberOfReviews(reviews_html: BeautifulSoup, review_count_att='headline__review-count') -> int:
+    rev_count_atr = reviews_html.find_all('span', attrs={'class': review_count_att})
+    rev_count_atr = [span.get_text() for span in rev_count_atr][0].replace(',', '')
+    return int(rev_count_atr)
 
 

@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import requests
 
-from bs4 import BeautifulSoup
+from bs4 import (BeautifulSoup,
+                 element)
 
 import urllib
 
@@ -27,15 +28,28 @@ def getHTMLObject(target_url: str) -> BeautifulSoup:
         response = request.read()
         response_html = BeautifulSoup(response, 'html.parser')
         return response_html
-        
 
+      
 test_html = getHTMLObject(target_url)
-print(test_html.prettify())
 
 
-def extractTotalNumberOfReviews(reviews_html: BeautifulSoup, review_count_att='headline__review-count') -> int:
+def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
+                                review_count_att='headline__review-count') -> int:
+    
     rev_count_atr = reviews_html.find_all('span', attrs={'class': review_count_att})
     rev_count_atr = [span.get_text() for span in rev_count_atr][0].replace(',', '')
     return int(rev_count_atr)
 
+
+def retrieveReviews(reviews_html: BeautifulSoup,
+                    review_section_att='review-card') -> element.ResultSet:
+    '''
+    The function returns an element.ResultSet, where each element is a tag
+    that contain all the information of the reviews. The ResultSet has a length
+    of 20.
+    '''
+    return reviews_html.find_all('div', attrs='review-card')
+
+
+test = retrieveReviews(test_html)
 

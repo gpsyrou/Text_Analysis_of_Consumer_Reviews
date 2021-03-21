@@ -48,8 +48,19 @@ def retrieveReviews(reviews_html: BeautifulSoup,
     that contain all the information of the reviews. The ResultSet has a length
     of 20.
     '''
-    return reviews_html.find_all('div', attrs='review-card')
+    return reviews_html.find_all('div', attrs={'class': review_section_att})
 
 
 test = retrieveReviews(test_html)
+
+
+def getReviewTitle(review: element.Tag, title_att='review-content__title') -> str:
+    title_obj = review.find_all('h2', attrs={'class': title_att})
+    title = [obj.get_text() for obj in title_obj]
+    if title:
+        return title[0].strip()
+    else:
+        print('No Title could be retrieved')
+
+getReviewTitle(test[0])
 

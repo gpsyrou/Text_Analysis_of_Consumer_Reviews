@@ -13,6 +13,10 @@ target_url = 'https://uk.trustpilot.com/review/www.deliveroo.co.uk'
 class NoDataRetrievedError(Exception):
     def __init__(self):
         self.msg = 'No data could be retrieved or field was empty'
+        
+        
+ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
+
 
 def getHTMLObject(target_url: str) -> BeautifulSoup:
     '''
@@ -79,3 +83,16 @@ def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
 
 getReviewText(test[0])
 
+
+def getReviewRating(review: element.Tag,
+                    rating_att='star-rating star-rating--medium',
+                    ratings = ratings_dict) -> dict:
+    rating_obj = review.find_all('div', attrs={'class': rating_att})
+    for div in rating_obj:
+        img = div.find('img', alt=True)
+        rating_str = img['alt']
+    rating_str = {int(rating_str[0]):ratings[int(rating_str[0])]}
+    return rating_str
+
+
+getReviewRating(test[0])

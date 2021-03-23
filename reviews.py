@@ -3,6 +3,10 @@ import numpy as np
 import requests
 import urllib
 
+import datetime
+import dateutil.parser
+
+
 from bs4 import (BeautifulSoup,
                  element)
 
@@ -99,15 +103,24 @@ def getReviewRating(review: element.Tag,
 getReviewRating(test[0])
 
 
-def extractReviewDatetime(review: element.Tag):
-    
-    for el in zz[0].find_all('script'): 
-        for child in el.children:
-            published_date = child.strip().split(',')[0][18:43]
-    return published_date
-    
+def extractReviewDateTime(review: element.Tag):
+    '''
 
-extractReviewDatetime(test[12])
+    Parameters
+    ----------
+    review : element.Tag
+        DESCRIPTION.
 
+    Returns
+    -------
+    TYPE
+        The function currently is extracting only the date not the time.
 
-    
+    '''
+    for parent in review.find_all('script'): 
+        for child in parent.children:
+            if 'publishedDate' in str(child):
+                published_date = child.strip().split(',')[0][18:43]
+                published_date= dateutil.parser.parse(published_date)
+    return published_date.strftime('%Y/%m/%d')  
+  

@@ -1,11 +1,12 @@
 import pandas as pd
 import numpy as np
 import requests
+import urllib
 
 from bs4 import (BeautifulSoup,
                  element)
 
-import urllib
+
 
 target_url = 'https://uk.trustpilot.com/review/www.deliveroo.co.uk'
 
@@ -96,3 +97,17 @@ def getReviewRating(review: element.Tag,
 
 
 getReviewRating(test[0])
+
+
+def extractReviewDatetime(review: element.Tag):
+    
+    for el in zz[0].find_all('script'): 
+        for child in el.children:
+            published_date = child.strip().split(',')[0][18:43]
+    return published_date
+    
+
+extractReviewDatetime(test[12])
+
+
+    

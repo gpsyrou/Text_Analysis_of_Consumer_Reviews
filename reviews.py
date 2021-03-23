@@ -103,7 +103,7 @@ def getReviewRating(review: element.Tag,
 getReviewRating(test[0])
 
 
-def extractReviewDateTime(review: element.Tag):
+def getReviewDateTime(review: element.Tag):
     '''
 
     Parameters

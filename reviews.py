@@ -6,7 +6,6 @@ import urllib
 import datetime
 import dateutil.parser
 
-
 from bs4 import (BeautifulSoup,
                  element)
 
@@ -121,6 +120,10 @@ def getReviewDateTime(review: element.Tag):
         for child in parent.children:
             if 'publishedDate' in str(child):
                 published_date = child.strip().split(',')[0][18:43]
-                published_date= dateutil.parser.parse(published_date)
-    return published_date.strftime('%Y/%m/%d')  
+                print(published_date)
+                published_date= dateutil.parser.isoparse(published_date)
+    return published_date.strftime("%Y-%m-%d %H:%M")
   
+getReviewDateTime(test[0])
+
+

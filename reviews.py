@@ -11,7 +11,7 @@ from bs4 import (BeautifulSoup,
 
 
 
-target_url = 'https://uk.trustpilot.com/review/www.deliveroo.co.uk'
+source_url = 'https://uk.trustpilot.com/review/www.deliveroo.co.uk'
 
 
 class NoDataRetrievedError(Exception):
@@ -42,7 +42,7 @@ def getHTMLObject(target_url: str) -> BeautifulSoup:
         return response_html
 
       
-test_html = getHTMLObject(target_url)
+reviews_page_html = getHTMLObject(source_url)
 
 
 def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
@@ -63,7 +63,7 @@ def retrieveReviews(reviews_html: BeautifulSoup,
     return reviews_html.find_all('div', attrs={'class': review_section_att})
 
 
-test = retrieveReviews(test_html)
+reviews_page = retrieveReviews(reviews_page_html)
 
 
 def getReviewTitle(review: element.Tag, title_att='review-content__title') -> str:
@@ -74,7 +74,7 @@ def getReviewTitle(review: element.Tag, title_att='review-content__title') -> st
     else:
         raise NoDataRetrievedError
 
-getReviewTitle(test[0])
+getReviewTitle(reviews_page[0])
 
 
 def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
@@ -85,7 +85,7 @@ def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
     else:
         raise NoDataRetrievedError
 
-getReviewText(test[0])
+getReviewText(reviews_page[0])
 
 
 def getReviewRating(review: element.Tag,
@@ -99,7 +99,7 @@ def getReviewRating(review: element.Tag,
     return rating_str
 
 
-getReviewRating(test[0])
+getReviewRating(reviews_page[0])
 
 
 def getReviewDateTime(review: element.Tag):
@@ -124,6 +124,6 @@ def getReviewDateTime(review: element.Tag):
                 published_date= dateutil.parser.isoparse(published_date)
     return published_date.strftime("%Y-%m-%d %H:%M")
   
-getReviewDateTime(test[0])
+getReviewDateTime(reviews_page[0])
 
 

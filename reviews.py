@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import requests
 import urllib
+import re
 
 import datetime
 import dateutil.parser
@@ -127,3 +128,14 @@ def getReviewDateTime(review: element.Tag):
 getReviewDateTime(reviews_page[0])
 
 
+def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
+    '''
+    Given a source_page as an html object, retrieve the url for the next page.
+    '''
+    nav = reviews_html.find_all('nav', attrs={'class': 'pagination-container'})
+    return re.findall(r'/review.+?(?=")', str(nav[0]))[0]
+    
+retrieveNextPage(reviews_page_html)  
+    
+    
+       

@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import requests
 import urllib
+import re
 
 import datetime
 import dateutil.parser
@@ -11,8 +12,10 @@ from bs4 import (BeautifulSoup,
 
 
 
-target_url = 'https://uk.trustpilot.com/review/www.deliveroo.co.uk'
+source_url = 'https://uk.trustpilot.com'
+company_url = '/review/www.deliveroo.co.uk'
 
+landing_page = source_url + company_url
 
 class NoDataRetrievedError(Exception):
     def __init__(self):
@@ -42,7 +45,7 @@ def getHTMLObject(target_url: str) -> BeautifulSoup:
         return response_html
 
       
-test_html = getHTMLObject(target_url)
+reviews_page_html = getHTMLObject(landing_page)
 
 
 def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
@@ -63,7 +66,7 @@ def retrieveReviews(reviews_html: BeautifulSoup,
     return reviews_html.find_all('div', attrs={'class': review_section_att})
 
 
-test = retrieveReviews(test_html)
+reviews_page = retrieveReviews(reviews_page_html)
 
 
 def getReviewTitle(review: element.Tag, title_att='review-content__title') -> str:
@@ -74,7 +77,7 @@ def getReviewTitle(review: element.Tag, title_att='review-content__title') -> st
     else:
         raise NoDataRetrievedError
 
-getReviewTitle(test[0])
+getReviewTitle(reviews_page[0])
 
 
 def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
@@ -85,7 +88,7 @@ def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
     else:
         raise NoDataRetrievedError
 
-getReviewText(test[0])
+getReviewText(reviews_page[0])
 
 
 def getReviewRating(review: element.Tag,
@@ -99,7 +102,7 @@ def getReviewRating(review: element.Tag,
     return rating_str
 
 
-getReviewRating(test[0])
+getReviewRating(reviews_page[0])
 
 
 def getReviewDateTime(review: element.Tag):
@@ -124,6 +127,19 @@ def getReviewDateTime(review: element.Tag):
                 published_date= dateutil.parser.isoparse(published_date)
     return published_date.strftime("%Y-%m-%d %H:%M")
   
-getReviewDateTime(test[0])
+getReviewDateTime(reviews_page[0])
 
 
+def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
+    '''
+    Given a source_page as an html object, retrieve the url for the next page.
+    '''
+    nav = reviews_html.find_all('nav', attrs={'class': 'pagination-container'})
+    next_page = re.findall(r'/review.+?(?=")', str(nav[0]))[0]
+    if not next_page:
+        raise NoDataRetrievedError
+    else:
+        return next_page
+    
+retrieveNextPage(reviews_page_html)  
+    

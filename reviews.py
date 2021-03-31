@@ -135,9 +135,11 @@ def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
     Given a source_page as an html object, retrieve the url for the next page.
     '''
     nav = reviews_html.find_all('nav', attrs={'class': 'pagination-container'})
-    return re.findall(r'/review.+?(?=")', str(nav[0]))[0]
+    next_page = re.findall(r'/review.+?(?=")', str(nav[0]))[0]
+    if not next_page:
+        raise NoDataRetrievedError
+    else:
+        return next_page
     
 retrieveNextPage(reviews_page_html)  
     
-    
-       

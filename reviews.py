@@ -12,8 +12,10 @@ from bs4 import (BeautifulSoup,
 
 
 
-source_url = 'https://uk.trustpilot.com/review/www.deliveroo.co.uk'
+source_url = 'https://uk.trustpilot.com'
+company_url = '/review/www.deliveroo.co.uk'
 
+landing_page = source_url + company_url
 
 class NoDataRetrievedError(Exception):
     def __init__(self):
@@ -43,7 +45,7 @@ def getHTMLObject(target_url: str) -> BeautifulSoup:
         return response_html
 
       
-reviews_page_html = getHTMLObject(source_url)
+reviews_page_html = getHTMLObject(landing_page)
 
 
 def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,

@@ -1,5 +1,6 @@
 
 import pandas as pd
+import numpy as np
 import urllib
 import re
 import dateutil.parser
@@ -14,6 +15,7 @@ company_url = '/review/www.deliveroo.co.uk'
 
 landing_page = source_url + company_url
 
+
 class NoDataRetrievedError(Exception):
     def __init__(self):
         self.msg = 'No data could be retrieved or field was empty'
@@ -22,7 +24,7 @@ class NoDataRetrievedError(Exception):
 ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
 
 
-def getHTMLObject(target_url: str) -> BeautifulSoup:
+def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
     '''
     Given a website link (URL), retrieve the corresponding website in an html
     format.
@@ -42,8 +44,23 @@ def getHTMLObject(target_url: str) -> BeautifulSoup:
         return response_html
 
       
-reviews_page_html = getHTMLObject(landing_page)
+reviews_page_html = reviewsPageToHTMLObject(landing_page)
 
+
+def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
+    '''
+    Given a source_page as an html object, retrieve the url for the next page.
+    '''
+    nav = reviews_html.find_all('nav', attrs={'class': 'pagination-container'})
+    next_page = re.findall(r'/review.+?(?=")', str(nav[0]))[0]
+    if not next_page:
+        raise NoDataRetrievedError
+    else:
+        return next_page
+
+page = retrieveNextPage(reviews_page_html)
+temp = reviewsPageToHTMLObject(source_url + page)
+retrieveNextPage(temp)
 
 def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
                                 review_count_att='headline__review-count') -> int:
@@ -107,17 +124,7 @@ def getReviewRating(review: element.Tag,
 
 def getReviewDateTime(review: element.Tag):
     '''
-
-    Parameters
-    ----------
-    review : element.Tag
-        DESCRIPTION.
-
-    Returns
-    -------
-    TYPE
-        The function currently is extracting only the date not the time.
-
+    The function currently is extracting only the date not the time.
     '''
     for parent in review.find_all('script'): 
         for child in parent.children:
@@ -128,40 +135,42 @@ def getReviewDateTime(review: element.Tag):
 
 
 
-def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
-    '''
-    Given a source_page as an html object, retrieve the url for the next page.
-    '''
-    nav = reviews_html.find_all('nav', attrs={'class': 'pagination-container'})
-    next_page = re.findall(r'/review.+?(?=")', str(nav[0]))[0]
-    if not next_page:
-        raise NoDataRetrievedError
-    else:
-        return next_page
-    
-        
-
-id_ls = []
-title_ls = []
-text_ls = []
-datetime_ls = []
-ratings_ls = []
-
-for i in range(0, len(reviews)):
-    id_ls.append(getReviewUniqueId(reviews[i]))
-    title_ls.append(getReviewTitle(reviews[i]))
-    text_ls.append(getReviewText(reviews[i]))
-    datetime_ls.append(getReviewDateTime(reviews[i]))
-    ratings_ls.append(getReviewRating(reviews[i]))
-
 col_names = ['Id', 'Title', 'Review', 'Date', 'Rating']
 
 
+def reviewsPageToDataFrame(reviews: element.ResultSet,
+                           colnames=col_names) -> pd.core.frame.DataFrame:
+    '''
+    Transform a single page of reviews into a pandas DataFrame. Columns are 
+    following the order as defined in col_names.
+    '''
+    id_ls = []
+    title_ls = []
+    text_ls = []
+    datetime_ls = []
+    ratings_ls = []
+    
+    for i in range(0, len(reviews)):
+        id_ls.append(getReviewUniqueId(reviews[i]))
+        title_ls.append(getReviewTitle(reviews[i]))
+        text_ls.append(getReviewText(reviews[i]))
+        datetime_ls.append(getReviewDateTime(reviews[i]))
+        ratings_ls.append(getReviewRating(reviews[i]))
 
-reviews_df = pd.DataFrame(list(zip(id_ls, title_ls, text_ls, datetime_ls,
+    reviews_df = pd.DataFrame(list(zip(id_ls, title_ls, text_ls, datetime_ls,
                                    ratings_ls)), columns = col_names)
 
+    return reviews_df
 
+
+df = reviewsPageToDataFrame(reviews)
+
+
+reviews
+
+
+
+reviews_df['Date']= pd.to_datetime(reviews_df['Date'])
 
 
 

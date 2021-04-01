@@ -1,4 +1,5 @@
 
+import pandas as pd
 import urllib
 import re
 import dateutil.parser
@@ -58,7 +59,7 @@ def retrieveReviews(reviews_html: BeautifulSoup,
     '''
     The function returns an element.ResultSet, where each element is a tag
     that contain all the information of the reviews. The ResultSet has a length
-    of 20.
+    of 20. A 'review-card' element corresponds to a separate review.
     '''
     return reviews_html.find_all('div', attrs={'class': review_section_att})
 
@@ -75,14 +76,11 @@ def getReviewTitle(review: element.Tag,
     else:
         raise NoDataRetrievedError
 
-getReviewTitle(reviews[0])
-
 
 def getReviewUniqueId(review: element.Tag) -> 'str':
     review = review.find_all('article', attrs={'class': 'review'})
     return review[0].get('id')
-    
-getReviewUniqueId(reviews[0])
+
 
 
 def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
@@ -92,8 +90,6 @@ def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
         return text[0].strip()
     else:
         raise NoDataRetrievedError
-
-getReviewText(reviews[0])
 
 
 def getReviewRating(review: element.Tag,
@@ -107,7 +103,6 @@ def getReviewRating(review: element.Tag,
     return rating_str
 
 
-getReviewRating(reviews[0])
 
 
 def getReviewDateTime(review: element.Tag):
@@ -128,11 +123,9 @@ def getReviewDateTime(review: element.Tag):
         for child in parent.children:
             if 'publishedDate' in str(child):
                 published_date = child.strip().split(',')[0][18:43]
-                print(published_date)
                 published_date= dateutil.parser.isoparse(published_date)
     return published_date.strftime("%Y-%m-%d %H:%M")
-  
-getReviewDateTime(reviews[0])
+
 
 
 def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
@@ -146,5 +139,36 @@ def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
     else:
         return next_page
     
-retrieveNextPage(reviews_page_html)  
-    
+        
+
+id_ls = []
+title_ls = []
+text_ls = []
+datetime_ls = []
+ratings_ls = []
+
+for i in range(0, len(reviews)):
+    id_ls.append(getReviewUniqueId(reviews[i]))
+    title_ls.append(getReviewTitle(reviews[i]))
+    text_ls.append(getReviewText(reviews[i]))
+    datetime_ls.append(getReviewDateTime(reviews[i]))
+    ratings_ls.append(getReviewRating(reviews[i]))
+
+col_names = ['Id', 'Title', 'Review', 'Date', 'Rating']
+
+
+
+reviews_df = pd.DataFrame(list(zip(id_ls, title_ls, text_ls, datetime_ls,
+                                   ratings_ls)), columns = col_names)
+
+
+
+
+
+
+
+
+
+
+
+

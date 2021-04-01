@@ -1,10 +1,6 @@
-import pandas as pd
-import numpy as np
-import requests
+
 import urllib
 import re
-
-import datetime
 import dateutil.parser
 
 from bs4 import (BeautifulSoup,
@@ -51,7 +47,8 @@ reviews_page_html = getHTMLObject(landing_page)
 def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
                                 review_count_att='headline__review-count') -> int:
     
-    rev_count_atr = reviews_html.find_all('span', attrs={'class': review_count_att})
+    rev_count_atr = reviews_html.find_all('span',
+                                          attrs={'class': review_count_att})
     rev_count_atr = [span.get_text() for span in rev_count_atr][0].replace(',', '')
     return int(rev_count_atr)
 
@@ -69,7 +66,8 @@ def retrieveReviews(reviews_html: BeautifulSoup,
 reviews_page = retrieveReviews(reviews_page_html)
 
 
-def getReviewTitle(review: element.Tag, title_att='review-content__title') -> str:
+def getReviewTitle(review: element.Tag,
+                   title_att='review-content__title') -> str:
     title_obj = review.find_all('h2', attrs={'class': title_att})
     title = [obj.get_text() for obj in title_obj]
     if title:

@@ -63,7 +63,7 @@ def retrieveReviews(reviews_html: BeautifulSoup,
     return reviews_html.find_all('div', attrs={'class': review_section_att})
 
 
-reviews_page = retrieveReviews(reviews_page_html)
+reviews = retrieveReviews(reviews_page_html)
 
 
 def getReviewTitle(review: element.Tag,
@@ -75,7 +75,14 @@ def getReviewTitle(review: element.Tag,
     else:
         raise NoDataRetrievedError
 
-getReviewTitle(reviews_page[0])
+getReviewTitle(reviews[0])
+
+
+def getReviewUniqueId(review: element.Tag) -> 'str':
+    review = review.find_all('article', attrs={'class': 'review'})
+    return review[0].get('id')
+    
+getReviewUniqueId(reviews[0])
 
 
 def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
@@ -86,7 +93,7 @@ def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
     else:
         raise NoDataRetrievedError
 
-getReviewText(reviews_page[0])
+getReviewText(reviews[0])
 
 
 def getReviewRating(review: element.Tag,
@@ -100,7 +107,7 @@ def getReviewRating(review: element.Tag,
     return rating_str
 
 
-getReviewRating(reviews_page[0])
+getReviewRating(reviews[0])
 
 
 def getReviewDateTime(review: element.Tag):
@@ -125,7 +132,7 @@ def getReviewDateTime(review: element.Tag):
                 published_date= dateutil.parser.isoparse(published_date)
     return published_date.strftime("%Y-%m-%d %H:%M")
   
-getReviewDateTime(reviews_page[0])
+getReviewDateTime(reviews[0])
 
 
 def retrieveNextPage(reviews_html: BeautifulSoup) -> str:

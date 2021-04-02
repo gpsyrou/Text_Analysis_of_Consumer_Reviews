@@ -160,22 +160,3 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
 
     return reviews_df
 
-
-df = reviewsPageToDataFrame(reviews)
-
-
-reviews
-
-
-
-reviews_df['Date']= pd.to_datetime(reviews_df['Date'])
-
-
-
-
-
-
-
-
-
-

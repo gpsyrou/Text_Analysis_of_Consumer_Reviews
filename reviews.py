@@ -1,6 +1,5 @@
 
 import pandas as pd
-import numpy as np
 import urllib
 import re
 import dateutil.parser
@@ -159,4 +158,18 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
                                    ratings_ls)), columns = col_names)
 
     return reviews_df
+
+
+
+source_url = 'https://uk.trustpilot.com'
+company_url = '/review/www.deliveroo.co.uk'
+
+landing_page = source_url + company_url
+
+for i in range(0, 5):
+    reviews_page_html = reviewsPageToHTMLObject(landing_page)
+    page = retrieveNextPage(reviews_page_html)
+    print(page)
+    landing_page = source_url + page
+
 

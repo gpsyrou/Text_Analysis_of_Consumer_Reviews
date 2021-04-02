@@ -52,15 +52,13 @@ def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
     Given a source_page as an html object, retrieve the url for the next page.
     '''
     nav = reviews_html.find_all('nav', attrs={'class': 'pagination-container'})
+    nav = nav[0].find_all('a', attrs={'class': 'button button--primary next-page'})
     next_page = re.findall(r'/review.+?(?=")', str(nav[0]))[0]
     if not next_page:
         raise NoDataRetrievedError
     else:
         return next_page
 
-page = retrieveNextPage(reviews_page_html)
-temp = reviewsPageToHTMLObject(source_url + page)
-retrieveNextPage(temp)
 
 def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
                                 review_count_att='headline__review-count') -> int:

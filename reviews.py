@@ -1,4 +1,5 @@
 
+import os
 import pandas as pd
 import urllib
 import re
@@ -7,20 +8,17 @@ import dateutil.parser
 from bs4 import (BeautifulSoup,
                  element)
 
+project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
+os.chdir(project_dir)
+
+from helpers.utilities import NoDataRetrievedError
 
 
-source_url = 'https://uk.trustpilot.com'
-company_url = '/review/www.deliveroo.co.uk'
-
-landing_page = source_url + company_url
 
 
-class NoDataRetrievedError(Exception):
-    def __init__(self):
-        self.msg = 'No data could be retrieved or field was empty'
-        
-        
+col_names = ['Id', 'Title', 'Review', 'Date', 'Rating']
 ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
+
 
 
 def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
@@ -41,9 +39,6 @@ def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
         response = request.read()
         response_html = BeautifulSoup(response, 'html.parser')
         return response_html
-
-      
-reviews_page_html = reviewsPageToHTMLObject(landing_page)
 
 
 def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
@@ -78,7 +73,6 @@ def retrieveReviews(reviews_html: BeautifulSoup,
     return reviews_html.find_all('div', attrs={'class': review_section_att})
 
 
-reviews = retrieveReviews(reviews_page_html)
 
 
 def getReviewTitle(review: element.Tag,
@@ -103,7 +97,7 @@ def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
     if text:
         return text[0].strip()
     else:
-        raise NoDataRetrievedError
+        pass
 
 
 def getReviewRating(review: element.Tag,
@@ -129,10 +123,6 @@ def getReviewDateTime(review: element.Tag):
                 published_date = child.strip().split(',')[0][18:43]
                 published_date= dateutil.parser.isoparse(published_date)
     return published_date.strftime("%Y-%m-%d %H:%M")
-
-
-
-col_names = ['Id', 'Title', 'Review', 'Date', 'Rating']
 
 
 def reviewsPageToDataFrame(reviews: element.ResultSet,
@@ -163,13 +153,19 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
 
 source_url = 'https://uk.trustpilot.com'
 company_url = '/review/www.deliveroo.co.uk'
-
 landing_page = source_url + company_url
+
+all_res = []
 
 for i in range(0, 5):
     reviews_page_html = reviewsPageToHTMLObject(landing_page)
     page = retrieveNextPage(reviews_page_html)
+    reviews = retrieveReviews(reviews_page_html)
+    df = reviewsPageToDataFrame(reviews, colnames=col_names)
     print(page)
     landing_page = source_url + page
+    all_res.append(df)
+
+df_res = pd.concat(all_res)
 
 

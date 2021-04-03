@@ -20,7 +20,7 @@ def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
     target_url : str
         URL of the webpage that will be transformed to a HTML object.
     '''
-    print('Attempting to retrieve HTML object for {0}'.format(target_url))
+    #print('Attempting to retrieve HTML object for {0}'.format(target_url))
     request = urllib.request.urlopen(target_url)
     if request.getcode() != 200:
         raise Exception('Can not communicate with the client')        

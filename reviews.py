@@ -1,6 +1,7 @@
 
 import os
 import pandas as pd
+from typing import List
 
 project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
@@ -19,13 +20,18 @@ landing_page = source_url + company_url
 
 all_res = []
 
+def parsedPagesList(filename: str) -> List['str']:
+    '''
+    Returns a list of all the links that are already processed.
+    '''
+    with open(processed_pages_file, 'r') as file: 
+        file_content = [line.strip() for line in file.readlines()]
+        file.close()
+    return file_content
 
-with open(processed_pages_file, 'r') as file: 
-    file_content = [line.strip() for line in file.readlines()]
-    file.close()
 
 with open(processed_pages_file, 'w') as file:
-    landing_page = source_url + company_url
+    file_content = parsedPagesList(filename=processed_pages_file)
     for i in range(0, 11):
         reviews_page_html = tp.reviewsPageToHTMLObject(landing_page)
         page = tp.retrieveNextPage(reviews_page_html)

@@ -62,8 +62,6 @@ def retrieveReviews(reviews_html: BeautifulSoup,
     return reviews_html.find_all('div', attrs={'class': review_section_att})
 
 
-
-
 def getReviewTitle(review: element.Tag,
                    title_att='review-content__title') -> str:
     title_obj = review.find_all('h2', attrs={'class': title_att})
@@ -77,7 +75,6 @@ def getReviewTitle(review: element.Tag,
 def getReviewUniqueId(review: element.Tag) -> 'str':
     review = review.find_all('article', attrs={'class': 'review'})
     return review[0].get('id')
-
 
 
 def getReviewText(review: element.Tag, text_att='review-content__text') -> str:

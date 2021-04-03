@@ -20,30 +20,41 @@ landing_page = source_url + company_url
 
 all_res = []
 
-def parsedPagesList(filename: str) -> List['str']:
+def processedPagesList(input_file: str) -> List['str']:
     '''
     Returns a list of all the links that are already processed.
     '''
-    with open(processed_pages_file, 'r') as file: 
+    with open(input_file, 'r') as file: 
         file_content = [line.strip() for line in file.readlines()]
         file.close()
     return file_content
 
-
-with open(processed_pages_file, 'w') as file:
-    file_content = parsedPagesList(filename=processed_pages_file)
-    for i in range(0, 11):
-        reviews_page_html = tp.reviewsPageToHTMLObject(landing_page)
-        page = tp.retrieveNextPage(reviews_page_html)
-        reviews = tp.retrieveReviews(reviews_page_html)
-        temp_df = tp.reviewsPageToDataFrame(reviews, ratings=ratings_dict,
-                                       colnames=col_names)
-        if page not in file_content:
-            print(page)
-            file.write(page + '\n')
-            all_res.append(temp_df)
-            
-        landing_page = source_url + page
+def retrieveDataFromSource(input_file: str, source: str, starting_page: str,
+                           steps: int) -> pd.core.frame.DataFrame:
+    '''
+    '''
+    with open(input_file, 'w') as file:
+        landing_page = source + starting_page
+        file_content = processedPagesList(input_file)
         
-    df_merged = pd.concat(all_res)
-    file.close()
+        for i in range(0, steps):
+            reviews_page_html = tp.reviewsPageToHTMLObject(landing_page)
+            page = tp.retrieveNextPage(reviews_page_html)
+            reviews = tp.retrieveReviews(reviews_page_html)
+            df = tp.reviewsPageToDataFrame(reviews, ratings=ratings_dict,
+                                           colnames=col_names)
+            if page not in file_content:
+                print(page)
+                file.write(page + '\n')
+                all_res.append(df)
+            landing_page = source_url + page
+        data = pd.concat(all_res)
+        file.close()
+        
+    return data
+
+test_url = '/review/www.deliveroo.co.uk?b=MTYxNjc3MjYzNzAwMHw2MDVkZmUxZGY4NWQ3NTA4NzAzNmRhN2Q'
+
+processedPagesList(input_file=processed_pages_file)
+t = retrieveDataFromSource(input_file=processed_pages_file, source=source_url,
+                       starting_page=test_url, steps=5)

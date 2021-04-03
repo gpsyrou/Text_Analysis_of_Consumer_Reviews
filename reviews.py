@@ -18,7 +18,7 @@ company_url = '/review/www.deliveroo.co.uk'
 landing_page = source_url + company_url
 
 
-all_res = []
+
 
 def processedPagesList(input_file: str) -> List['str']:
     '''
@@ -29,14 +29,16 @@ def processedPagesList(input_file: str) -> List['str']:
         file.close()
     return file_content
 
+
 def retrieveDataFromSource(input_file: str, source: str, starting_page: str,
                            steps: int) -> pd.core.frame.DataFrame:
     '''
     '''
-    with open(input_file, 'w') as file:
-        landing_page = source + starting_page
-        file_content = processedPagesList(input_file)
-        
+    all_res = []
+    landing_page = source + starting_page
+    file_content = processedPagesList(input_file)
+    
+    with open(input_file, 'a') as file:
         for i in range(0, steps):
             reviews_page_html = tp.reviewsPageToHTMLObject(landing_page)
             page = tp.retrieveNextPage(reviews_page_html)
@@ -48,8 +50,8 @@ def retrieveDataFromSource(input_file: str, source: str, starting_page: str,
                 file.write(page + '\n')
                 all_res.append(df)
             landing_page = source_url + page
-        data = pd.concat(all_res)
-        file.close()
+    file.close()
+    data = pd.concat(all_res)
         
     return data
 
@@ -57,4 +59,4 @@ test_url = '/review/www.deliveroo.co.uk?b=MTYxNjc3MjYzNzAwMHw2MDVkZmUxZGY4NWQ3NT
 
 processedPagesList(input_file=processed_pages_file)
 t = retrieveDataFromSource(input_file=processed_pages_file, source=source_url,
-                       starting_page=test_url, steps=5)
+                       starting_page=company_url, steps=6)

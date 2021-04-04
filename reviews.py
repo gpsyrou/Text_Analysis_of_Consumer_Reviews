@@ -1,175 +1,86 @@
 
+import os
 import pandas as pd
-import urllib
-import re
-import dateutil.parser
+from typing import List
+from datetime import datetime
 
-from bs4 import (BeautifulSoup,
-                 element)
+project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
+os.chdir(project_dir)
 
+from helpers.utilities import NoDataRetrievedError
+import trustplt as pilot
 
+col_names = ['Id', 'Title', 'Review', 'Date', 'Rating']
+ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
+processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 
 source_url = 'https://uk.trustpilot.com'
 company_url = '/review/www.deliveroo.co.uk'
-
 landing_page = source_url + company_url
 
 
-class NoDataRetrievedError(Exception):
-    def __init__(self):
-        self.msg = 'No data could be retrieved or field was empty'
-        
-        
-ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
 
 
-def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
-    '''
-    Given a website link (URL), retrieve the corresponding website in an html
-    format.
+def processedPages(input_file: str) -> List['str']:
+    """
+    Returns a list of all the links that are already processed.
+    """
+    with open(input_file, 'r') as file: 
+        file_content = [line.split('\t')[0].strip() for line in file.readlines()]
+        file.close()
+    return file_content
+
+
+def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
+                    processed_urls_f: str) -> pd.core.frame.DataFrame:
+    """
+    Generate a dataframe with the data retrieved from TrustPilot for a
+    specified target 
 
     Parameters
     ----------
-    target_url : str
-        URL of the webpage that will be transformed to a HTML object.
-    '''
-    print('Attempting to retrieve HTML object for {0}'.format(target_url))
-    request = urllib.request.urlopen(target_url)
-    if request.getcode() != 200:
-        raise Exception('Can not communicate with the client')        
-    else:
-        response = request.read()
-        response_html = BeautifulSoup(response, 'html.parser')
-        return response_html
+    base_domain: 
+        Base domain path for the Trustpilot landing page
+    starting_page: 
+        Sub-domain path
+    steps: 
+        Number of pages to iterate with "starting_page" as starting point
+    processed_urls: 
+        Path to the .txt file that contains the already parsed URLs
 
-      
-reviews_page_html = reviewsPageToHTMLObject(landing_page)
-
-
-def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
-    '''
-    Given a source_page as an html object, retrieve the url for the next page.
-    '''
-    nav = reviews_html.find_all('nav', attrs={'class': 'pagination-container'})
-    nav = nav[0].find_all('a', attrs={'class': 'button button--primary next-page'})
-    next_page = re.findall(r'/review.+?(?=")', str(nav[0]))[0]
-    if not next_page:
-        raise NoDataRetrievedError
-    else:
-        return next_page
-
-
-def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
-                                review_count_att='headline__review-count') -> int:
+    Returns
+    --------
+    merged_data_df:
+         A pandas dataframe object that contains the merged data retrieved by
+         looping through different url pages.
     
-    rev_count_atr = reviews_html.find_all('span',
-                                          attrs={'class': review_count_att})
-    rev_count_atr = [span.get_text() for span in rev_count_atr][0].replace(',', '')
-    return int(rev_count_atr)
-
-
-def retrieveReviews(reviews_html: BeautifulSoup,
-                    review_section_att='review-card') -> element.ResultSet:
-    '''
-    The function returns an element.ResultSet, where each element is a tag
-    that contain all the information of the reviews. The ResultSet has a length
-    of 20. A 'review-card' element corresponds to a separate review.
-    '''
-    return reviews_html.find_all('div', attrs={'class': review_section_att})
-
-
-reviews = retrieveReviews(reviews_page_html)
-
-
-def getReviewTitle(review: element.Tag,
-                   title_att='review-content__title') -> str:
-    title_obj = review.find_all('h2', attrs={'class': title_att})
-    title = [obj.get_text() for obj in title_obj]
-    if title:
-        return title[0].strip()
-    else:
-        raise NoDataRetrievedError
-
-
-def getReviewUniqueId(review: element.Tag) -> 'str':
-    review = review.find_all('article', attrs={'class': 'review'})
-    return review[0].get('id')
-
-
-
-def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
-    text_obj = review.find_all('p', attrs={'class': text_att})
-    text = [obj.get_text() for obj in text_obj]
-    if text:
-        return text[0].strip()
-    else:
-        raise NoDataRetrievedError
-
-
-def getReviewRating(review: element.Tag,
-                    rating_att='star-rating star-rating--medium',
-                    ratings = ratings_dict) -> dict:
-    rating_obj = review.find_all('div', attrs={'class': rating_att})
-    for div in rating_obj:
-        img = div.find('img', alt=True)
-        rating_str = img['alt']
-    rating_str = {int(rating_str[0]):ratings[int(rating_str[0])]}
-    return rating_str
-
-
-
-
-def getReviewDateTime(review: element.Tag):
-    '''
-    The function currently is extracting only the date not the time.
-    '''
-    for parent in review.find_all('script'): 
-        for child in parent.children:
-            if 'publishedDate' in str(child):
-                published_date = child.strip().split(',')[0][18:43]
-                published_date= dateutil.parser.isoparse(published_date)
-    return published_date.strftime("%Y-%m-%d %H:%M")
-
-
-
-col_names = ['Id', 'Title', 'Review', 'Date', 'Rating']
-
-
-def reviewsPageToDataFrame(reviews: element.ResultSet,
-                           colnames=col_names) -> pd.core.frame.DataFrame:
-    '''
-    Transform a single page of reviews into a pandas DataFrame. Columns are 
-    following the order as defined in col_names.
-    '''
-    id_ls = []
-    title_ls = []
-    text_ls = []
-    datetime_ls = []
-    ratings_ls = []
+    Notes
+    -----
+        The function checks processed_urls_f for subdomains that are already
+        processed and it skips them if they are present in the .txt file. If
+        not, then a new line is written in the .txt file to avoid re-processing
+        in future iterations.
+    """
+    pages_ls = []
+    landing_page = base_domain + starting_page
+    file_content = processedPages(processed_urls_f)
     
-    for i in range(0, len(reviews)):
-        id_ls.append(getReviewUniqueId(reviews[i]))
-        title_ls.append(getReviewTitle(reviews[i]))
-        text_ls.append(getReviewText(reviews[i]))
-        datetime_ls.append(getReviewDateTime(reviews[i]))
-        ratings_ls.append(getReviewRating(reviews[i]))
+    with open(processed_urls_f, 'a') as file:
+        for i in range(0, steps):
+            reviews_page_html = pilot.reviewsPageToHTMLObject(landing_page)
+            page = pilot.retrieveNextPage(reviews_page_html)
+            reviews = pilot.retrieveReviews(reviews_page_html)
+            df = pilot.reviewsPageToDataFrame(reviews, ratings=ratings_dict,
+                                           colnames=col_names)
+            if page not in file_content:
+                print(page)
+                file.write(page +'\t' + str(datetime.now()) + '\n')
+                pages_ls.append(df)
+            landing_page = source_url + page
+    file.close()
+    merged_data_df = pd.concat(pages_ls)
+        
+    return merged_data_df
 
-    reviews_df = pd.DataFrame(list(zip(id_ls, title_ls, text_ls, datetime_ls,
-                                   ratings_ls)), columns = col_names)
-
-    return reviews_df
-
-
-
-source_url = 'https://uk.trustpilot.com'
-company_url = '/review/www.deliveroo.co.uk'
-
-landing_page = source_url + company_url
-
-for i in range(0, 5):
-    reviews_page_html = reviewsPageToHTMLObject(landing_page)
-    page = retrieveNextPage(reviews_page_html)
-    print(page)
-    landing_page = source_url + page
-
-
+processedPages(input_file=processed_pages_file)
+t = trustPltSniffer(base_domain=source_url, starting_page=company_url, steps=6, processed_urls_f=processed_pages_file)

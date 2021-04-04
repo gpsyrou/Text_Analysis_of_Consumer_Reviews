@@ -2,6 +2,7 @@
 import os
 import pandas as pd
 from typing import List
+from datetime import datetime
 
 project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
@@ -20,12 +21,12 @@ landing_page = source_url + company_url
 
 
 
-def processedPagesList(input_file: str) -> List['str']:
+def processedPages(input_file: str) -> List['str']:
     '''
     Returns a list of all the links that are already processed.
     '''
     with open(input_file, 'r') as file: 
-        file_content = [line.strip() for line in file.readlines()]
+        file_content = [line.split('\t')[0].strip() for line in file.readlines()]
         file.close()
     return file_content
 
@@ -36,7 +37,7 @@ def retrieveDataFromSource(input_file: str, source: str, starting_page: str,
     '''
     all_res = []
     landing_page = source + starting_page
-    file_content = processedPagesList(input_file)
+    file_content = processedPages(input_file)
     
     with open(input_file, 'a') as file:
         for i in range(0, steps):
@@ -47,7 +48,7 @@ def retrieveDataFromSource(input_file: str, source: str, starting_page: str,
                                            colnames=col_names)
             if page not in file_content:
                 print(page)
-                file.write(page + '\n')
+                file.write(page +'\t' + str(datetime.now()) + '\n')
                 all_res.append(df)
             landing_page = source_url + page
     file.close()
@@ -55,8 +56,6 @@ def retrieveDataFromSource(input_file: str, source: str, starting_page: str,
         
     return data
 
-test_url = '/review/www.deliveroo.co.uk?b=MTYxNjc3MjYzNzAwMHw2MDVkZmUxZGY4NWQ3NTA4NzAzNmRhN2Q'
-
-processedPagesList(input_file=processed_pages_file)
+processedPages(input_file=processed_pages_file)
 t = retrieveDataFromSource(input_file=processed_pages_file, source=source_url,
                        starting_page=company_url, steps=6)

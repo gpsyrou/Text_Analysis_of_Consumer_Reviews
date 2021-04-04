@@ -2,12 +2,13 @@ import pandas as pd
 import urllib
 import re
 import dateutil.parser
+from datetime import datetime
 
 from typing import List, Mapping
 
 from bs4 import (BeautifulSoup,
                  element)
-from helpers.utilities import NoDataRetrievedError
+from helpers.utilities import processedPages, NoDataRetrievedError
 
 
 def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
@@ -86,13 +87,13 @@ def getReviewText(review: element.Tag,
         pass
 
 
-def getReviewRating(review: element.Tag, ratings: Mapping[int, str],
+def getReviewRating(review: element.Tag, ratings_dict: Mapping[int, str],
                     rvw_rating_att='star-rating star-rating--medium') -> dict:
     rating_obj = review.find_all('div', attrs={'class': rvw_rating_att})
     for div in rating_obj:
         img = div.find('img', alt=True)
         rating_str = img['alt']
-    rating_str = {int(rating_str[0]):ratings[int(rating_str[0])]}
+    rating_str = {int(rating_str[0]):ratings_dict[int(rating_str[0])]}
     return rating_str
 
 
@@ -109,8 +110,8 @@ def getReviewDateTime(review: element.Tag):
 
 
 def reviewsPageToDataFrame(reviews: element.ResultSet,
-                           ratings: Mapping[int, str],
-                           colnames: List['str']) -> pd.core.frame.DataFrame:
+                           ratings_dict: Mapping[int, str],
+                           col_names: List['str']) -> pd.core.frame.DataFrame:
     """
     Transform a single page of reviews into a pandas DataFrame. Columns are 
     following the order as defined in col_names.
@@ -126,9 +127,61 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
         title_ls.append(getReviewTitle(reviews[i]))
         text_ls.append(getReviewText(reviews[i]))
         datetime_ls.append(getReviewDateTime(reviews[i]))
-        ratings_ls.append(getReviewRating(reviews[i], ratings=ratings))
+        ratings_ls.append(getReviewRating(reviews[i], ratings_dict=ratings_dict))
 
     reviews_df = pd.DataFrame(list(zip(id_ls, title_ls, text_ls, datetime_ls,
-                                   ratings_ls)), columns = colnames)
-
+                                   ratings_ls)), columns = col_names)
     return reviews_df
+
+
+def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
+                    processed_urls_f: str, ratings_dict: Mapping[int, str],
+                    col_names: List['str']) -> pd.core.frame.DataFrame:
+    """
+    Generate a dataframe with the data retrieved from TrustPilot for a
+    specified target 
+
+    Parameters
+    ----------
+    base_domain: 
+        Base domain path for the Trustpilot landing page
+    starting_page: 
+        Sub-domain path
+    steps: 
+        Number of pages to iterate with "starting_page" as starting point
+    processed_urls: 
+        Path to the .txt file that contains the already parsed URLs
+
+    Returns
+    --------
+    merged_data_df:
+         A pandas dataframe object that contains the merged data retrieved by
+         looping through different url pages.
+    
+    Notes
+    -----
+        The function checks processed_urls_f for subdomains that are already
+        processed and it skips them if they are present in the .txt file. If
+        not, then a new line is written in the .txt file to avoid re-processing
+        in future iterations.
+    """
+    pages_ls = []
+    landing_page = base_domain + starting_page
+    file_content = processedPages(processed_urls_f)
+    
+    with open(processed_urls_f, 'a') as file:
+        for i in range(0, steps):
+            reviews_page_html = reviewsPageToHTMLObject(landing_page)
+            page = retrieveNextPage(reviews_page_html)
+            reviews = retrieveReviews(reviews_page_html)
+            df = reviewsPageToDataFrame(reviews, ratings_dict=ratings_dict,
+                                           col_names=col_names)
+            if page not in file_content:
+                print(page)
+                file.write(page +'\t' + str(datetime.now()) + '\n')
+                pages_ls.append(df)
+            landing_page = base_domain + page
+    file.close()
+    merged_data_df = pd.concat(pages_ls)
+
+    return merged_data_df

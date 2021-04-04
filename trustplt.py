@@ -11,7 +11,7 @@ from helpers.utilities import NoDataRetrievedError
 
 
 def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
-    '''
+    """
     Given a website link (URL), retrieve the corresponding website in an html
     format.
 
@@ -19,7 +19,7 @@ def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
     ----------
     target_url : str
         URL of the webpage that will be transformed to a HTML object.
-    '''
+    """
     #print('Attempting to retrieve HTML object for {0}'.format(target_url))
     request = urllib.request.urlopen(target_url)
     if request.getcode() != 200:
@@ -31,9 +31,9 @@ def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
 
 
 def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
-    '''
+    """
     Given a source_page as an html object, retrieve the url for the next page.
-    '''
+    """
     nav = reviews_html.find_all('nav', attrs={'class': 'pagination-container'})
     nav = nav[0].find_all('a', attrs={'class': 'button button--primary next-page'})
     next_page = re.findall(r'/review.+?(?=")', str(nav[0]))[0]
@@ -44,27 +44,26 @@ def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
 
 
 def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
-                                review_count_att='headline__review-count') -> int:
+                                rvw_num_att='headline__review-count') -> int:
     
-    rev_count_atr = reviews_html.find_all('span',
-                                          attrs={'class': review_count_att})
-    rev_count_atr = [span.get_text() for span in rev_count_atr][0].replace(',', '')
-    return int(rev_count_atr)
+    rev_num_atr = reviews_html.find_all('span', attrs={'class': rvw_num_att})
+    rev_num_atr = [span.get_text() for span in rev_num_atr][0].replace(',', '')
+    return int(rev_num_atr)
 
 
 def retrieveReviews(reviews_html: BeautifulSoup,
-                    review_section_att='review-card') -> element.ResultSet:
-    '''
+                    rvw_section_att='review-card') -> element.ResultSet:
+    """
     The function returns an element.ResultSet, where each element is a tag
     that contain all the information of the reviews. The ResultSet has a length
     of 20. A 'review-card' element corresponds to a separate review.
-    '''
-    return reviews_html.find_all('div', attrs={'class': review_section_att})
+    """
+    return reviews_html.find_all('div', attrs={'class': rvw_section_att})
 
 
 def getReviewTitle(review: element.Tag,
-                   title_att='review-content__title') -> str:
-    title_obj = review.find_all('h2', attrs={'class': title_att})
+                   rvw_title_att='review-content__title') -> str:
+    title_obj = review.find_all('h2', attrs={'class': rvw_title_att})
     title = [obj.get_text() for obj in title_obj]
     if title:
         return title[0].strip()
@@ -77,8 +76,9 @@ def getReviewUniqueId(review: element.Tag) -> 'str':
     return review[0].get('id')
 
 
-def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
-    text_obj = review.find_all('p', attrs={'class': text_att})
+def getReviewText(review: element.Tag,
+                  rvw_text_att='review-content__text') -> str:
+    text_obj = review.find_all('p', attrs={'class': rvw_text_att})
     text = [obj.get_text() for obj in text_obj]
     if text:
         return text[0].strip()
@@ -86,11 +86,9 @@ def getReviewText(review: element.Tag, text_att='review-content__text') -> str:
         pass
 
 
-def getReviewRating(review: element.Tag,
-                    ratings: Mapping[int, str],
-                    rating_att='star-rating star-rating--medium'
-                    ) -> dict:
-    rating_obj = review.find_all('div', attrs={'class': rating_att})
+def getReviewRating(review: element.Tag, ratings: Mapping[int, str],
+                    rvw_rating_att='star-rating star-rating--medium') -> dict:
+    rating_obj = review.find_all('div', attrs={'class': rvw_rating_att})
     for div in rating_obj:
         img = div.find('img', alt=True)
         rating_str = img['alt']
@@ -99,9 +97,9 @@ def getReviewRating(review: element.Tag,
 
 
 def getReviewDateTime(review: element.Tag):
-    '''
+    """
     The function currently is extracting only the date not the time.
-    '''
+    """
     for parent in review.find_all('script'): 
         for child in parent.children:
             if 'publishedDate' in str(child):
@@ -113,10 +111,10 @@ def getReviewDateTime(review: element.Tag):
 def reviewsPageToDataFrame(reviews: element.ResultSet,
                            ratings: Mapping[int, str],
                            colnames: List['str']) -> pd.core.frame.DataFrame:
-    '''
+    """
     Transform a single page of reviews into a pandas DataFrame. Columns are 
     following the order as defined in col_names.
-    '''
+    """
     id_ls = []
     title_ls = []
     text_ls = []

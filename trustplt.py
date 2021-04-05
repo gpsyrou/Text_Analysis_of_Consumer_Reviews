@@ -73,8 +73,8 @@ def getReviewTitle(review: element.Tag,
 
 
 def getReviewerId(review: element.Tag, rvw_userid_att='consumer-information') -> str:
-    reviewer_id_obj = review.find_all('a', attrs={'class': rvw_userid_att})[0]
-    return reviewer_id_obj.get('href').replace('/users/', '')
+    reviewer_id_obj = review.find_all('a', attrs={'class': rvw_userid_att})
+    return reviewer_id_obj[0].get('href').replace('/users/', '')
 
 
 def getReviewUniqueId(review: element.Tag) -> str:

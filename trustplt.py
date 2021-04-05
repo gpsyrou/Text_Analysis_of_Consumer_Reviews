@@ -121,20 +121,22 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
     Transform a single page of reviews into a pandas DataFrame. Columns are 
     following the order as defined in col_names.
     """
-    id_ls = []
+    review_id_ls = []
+    reviewer_id_ls = []
     title_ls = []
     text_ls = []
     datetime_ls = []
     ratings_ls = []
     
     for i in range(0, len(reviews)):
-        id_ls.append(getReviewUniqueId(reviews[i]))
+        review_id_ls.append(getReviewUniqueId(reviews[i]))
+        reviewer_id_ls.append(getReviewerId(reviews[i]))
         title_ls.append(getReviewTitle(reviews[i]))
         text_ls.append(getReviewText(reviews[i]))
         datetime_ls.append(getReviewDateTime(reviews[i]))
         ratings_ls.append(getReviewRating(reviews[i], ratings_dict=ratings_dict))
 
-    reviews_df = pd.DataFrame(list(zip(id_ls, title_ls, text_ls, datetime_ls,
+    reviews_df = pd.DataFrame(list(zip(review_id_ls, reviewer_id_ls, title_ls, text_ls, datetime_ls,
                                    ratings_ls)), columns = col_names)
     return reviews_df
 
@@ -175,7 +177,7 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
     file_content = processedPages(processed_urls_f)
     
     with open(processed_urls_f, 'a') as file:
-        for i in range(0, steps):
+        while steps != 0:
             reviews_page_html = reviewsPageToHTMLObject(landing_page)
             page = retrieveNextPage(reviews_page_html)
             reviews = retrieveReviews(reviews_page_html)
@@ -186,6 +188,7 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
                 file.write(page +'\t' + str(datetime.now()) + '\n')
                 pages_ls.append(df)
             landing_page = base_domain + page
+            steps -= 1
     file.close()
     merged_data_df = pd.concat(pages_ls)
 

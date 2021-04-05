@@ -11,7 +11,7 @@ from helpers.utilities import processedPages, NoDataRetrievedError
 import trustplt as pilot
 
 
-col_names = ['Id', 'Title', 'Review', 'Date', 'Rating']
+col_names = ['Id', 'Reviewer_Id', 'Title', 'Review', 'Date', 'Rating']
 ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 

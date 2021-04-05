@@ -21,6 +21,12 @@ landing_page = source_url + company_url
 
 
 
+test = pilot.reviewsPageToHTMLObject(target_url=landing_page)
+test = pilot.retrieveReviews(test)
+t = test[0].find_all('a', attrs={'class': 'consumer-information'})[0]
+t.get('href').replace('/users/', '')
+
+pilot.getReviewUniqueId(test[0])
 
 
 processedPages(input_file=processed_pages_file)

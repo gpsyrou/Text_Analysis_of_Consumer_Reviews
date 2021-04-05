@@ -72,9 +72,14 @@ def getReviewTitle(review: element.Tag,
         raise NoDataRetrievedError
 
 
-def getReviewUniqueId(review: element.Tag) -> 'str':
-    review = review.find_all('article', attrs={'class': 'review'})
-    return review[0].get('id')
+def getReviewerId(review: element.Tag, rvw_userid_att='consumer-information') -> str:
+    reviewer_id_obj = review.find_all('a', attrs={'class': rvw_userid_att})[0]
+    return reviewer_id_obj.get('href').replace('/users/', '')
+
+
+def getReviewUniqueId(review: element.Tag) -> str:
+    review_id_obj = review.find_all('article', attrs={'class': 'review'})
+    return review_id_obj[0].get('id')
 
 
 def getReviewText(review: element.Tag,

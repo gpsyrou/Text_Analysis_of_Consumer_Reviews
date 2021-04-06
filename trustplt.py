@@ -49,6 +49,7 @@ def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
     
     rev_num_atr = reviews_html.find_all('span', attrs={'class': rvw_num_att})
     rev_num_atr = [span.get_text() for span in rev_num_atr][0].replace(',', '')
+    
     return int(rev_num_atr)
 
 
@@ -74,11 +75,13 @@ def getReviewTitle(review: element.Tag,
 
 def getReviewerId(review: element.Tag, rvw_userid_att='consumer-information') -> str:
     reviewer_id_obj = review.find_all('a', attrs={'class': rvw_userid_att})
+    
     return reviewer_id_obj[0].get('href').replace('/users/', '')
 
 
 def getReviewUniqueId(review: element.Tag) -> str:
     review_id_obj = review.find_all('article', attrs={'class': 'review'})
+    
     return review_id_obj[0].get('id')
 
 
@@ -99,6 +102,7 @@ def getReviewRating(review: element.Tag, ratings_dict: Mapping[int, str],
         img = div.find('img', alt=True)
         rating_str = img['alt']
     rating_str = {int(rating_str[0]):ratings_dict[int(rating_str[0])]}
+    
     return rating_str
 
 
@@ -111,6 +115,7 @@ def getReviewDateTime(review: element.Tag):
             if 'publishedDate' in str(child):
                 published_date = child.strip().split(',')[0][18:43]
                 published_date= dateutil.parser.isoparse(published_date)
+    
     return published_date.strftime("%Y-%m-%d %H:%M")
 
 
@@ -161,7 +166,6 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
 
     Returns
     --------
-    merged_data_df:
          A pandas dataframe object that contains the merged data retrieved by
          looping through different url pages.
     
@@ -190,6 +194,6 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
             landing_page = base_domain + page
             steps -= 1
     file.close()
-    merged_data_df = pd.concat(pages_ls)
 
-    return merged_data_df
+    return pd.concat(pages_ls)
+

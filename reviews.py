@@ -14,7 +14,7 @@ import trustplt as pilot
 col_names = ['Id', 'Reviewer_Id', 'Title', 'Review', 'Date', 'Rating']
 ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
-output_file = os.path.join(project_dir, 'output.csv')
+reviews_base_file = os.path.join(project_dir, 'output.csv')
 
 source_url = 'https://uk.trustpilot.com'
 company_url = '/review/www.deliveroo.co.uk'
@@ -35,3 +35,4 @@ temp_df = pilot.trustPltSniffer(base_domain=source_url, starting_page=company_ur
 
 temp_df.to_csv(output_file, sep=',', index=False)
 
+pilot.mergeReviewFiles(reviews_base_file)

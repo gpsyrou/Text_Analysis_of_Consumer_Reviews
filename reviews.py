@@ -29,10 +29,15 @@ t.get('href').replace('/users/', '')
 pilot.getReviewUniqueId(test[0])
 '''
 
-temp_df = pilot.trustPltSniffer(base_domain=source_url, starting_page=company_url,
-                      steps=7, processed_urls_f=processed_pages_file,
+base_df = pd.read_csv(reviews_base_file, sep=',')
+
+new_reviews_df = pilot.trustPltSniffer(base_domain=source_url, starting_page=company_url,
+                      steps=11, processed_urls_f=processed_pages_file,
                       ratings_dict=ratings_dict, col_names=col_names)
 
-temp_df.to_csv(output_file, sep=',', index=False)
+base_df_updated = pd.concat([base_df, new_reviews_df], axis=0)
+
+# temp_df.to_csv(reviews_base_file, sep=',', index=False)
+
 
 pilot.mergeReviewFiles(reviews_base_file)

@@ -7,7 +7,7 @@ from datetime import datetime
 project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
 
-from helpers.utilities import processedPages, NoDataRetrievedError
+from helpers.utilities import retrieveProcessedPages, NoDataRetrievedError
 import trustplt as pilot
 
 

@@ -8,7 +8,7 @@ from typing import List, Mapping
 
 from bs4 import (BeautifulSoup,
                  element)
-from helpers.utilities import processedPages, NoDataRetrievedError
+from helpers.utilities import retrieveProcessedPages, NoDataRetrievedError
 
 
 def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
@@ -178,7 +178,7 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
     """
     pages_ls = []
     landing_page = base_domain + starting_page
-    file_content = processedPages(processed_urls_f)
+    processed_pages = retrieveProcessedPages(processed_urls_f)
     
     with open(processed_urls_f, 'a') as file:
         while steps != 0:
@@ -187,7 +187,7 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
             reviews = retrieveReviews(reviews_page_html)
             df = reviewsPageToDataFrame(reviews, ratings_dict=ratings_dict,
                                            col_names=col_names)
-            if page not in file_content:
+            if page not in processed_pages:
                 print(page)
                 file.write(page +'\t' + str(datetime.now()) + '\n')
                 pages_ls.append(df)
@@ -197,7 +197,7 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
 
     return pd.concat(pages_ls)
 
-def mergeReviewFiles(reviews_file_path: str):
-    reviews_base = pd.read_csv(reviews_file_path, sep=',')
+def mergeReviewFiles(reviews_file: str):
+    reviews_base = pd.read_csv(reviews_file, sep=',')
     print('Base file has {0} rows'.format(reviews_base.shape[0]))
     return reviews_base

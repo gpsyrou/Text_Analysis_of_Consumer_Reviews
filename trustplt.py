@@ -196,8 +196,3 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
     file.close()
 
     return pd.concat(pages_ls)
-
-def mergeReviewFiles(reviews_file: str):
-    reviews_base = pd.read_csv(reviews_file, sep=',')
-    print('Base file has {0} rows'.format(reviews_base.shape[0]))
-    return reviews_base

@@ -121,11 +121,13 @@ def getReviewDateTime(review: element.Tag):
 
 def reviewsPageToDataFrame(reviews: element.ResultSet,
                            ratings_dict: Mapping[int, str],
-                           col_names: List['str']) -> pd.core.frame.DataFrame:
+                           col_names: List['str'],
+                           company_name: 'str') -> pd.core.frame.DataFrame:
     """
     Transform a single page of reviews into a pandas DataFrame. Columns are 
     following the order as defined in col_names.
     """
+    company_name_ls = [company_name] * len(reviews)
     review_id_ls = []
     reviewer_id_ls = []
     title_ls = []
@@ -141,14 +143,14 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
         datetime_ls.append(getReviewDateTime(reviews[i]))
         ratings_ls.append(getReviewRating(reviews[i], ratings_dict=ratings_dict))
 
-    reviews_df = pd.DataFrame(list(zip(review_id_ls, reviewer_id_ls, title_ls, text_ls, datetime_ls,
+    reviews_df = pd.DataFrame(list(zip(company_name_ls, review_id_ls, reviewer_id_ls, title_ls, text_ls, datetime_ls,
                                    ratings_ls)), columns = col_names)
     return reviews_df
 
 
 def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
                     processed_urls_f: str, ratings_dict: Mapping[int, str],
-                    col_names: List['str']) -> pd.core.frame.DataFrame:
+                    col_names: List['str'], company_name: 'str') -> pd.core.frame.DataFrame:
     """
     Generate a dataframe with the data retrieved from TrustPilot for a
     specified target 
@@ -186,7 +188,7 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
             page = retrieveNextPage(reviews_page_html)
             reviews = retrieveReviews(reviews_page_html)
             df = reviewsPageToDataFrame(reviews, ratings_dict=ratings_dict,
-                                           col_names=col_names)
+                                           col_names=col_names, company_name=company_name)
             if page not in processed_pages:
                 print(page)
                 file.write(page +'\t' + str(datetime.now()) + '\n')

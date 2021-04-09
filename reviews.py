@@ -10,17 +10,18 @@ os.chdir(project_dir)
 from helpers.utilities import retrieveProcessedPages, NoDataRetrievedError
 import trustplt as pilot
 
-
-col_names = ['Company', 'Id', 'Reviewer_Id', 'Title', 'Review', 'Date', 'Rating']
-ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
-processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
-reviews_base_file = os.path.join(project_dir, 'output.csv')
-
 source_url = 'https://uk.trustpilot.com'
 company_url = '/review/www.deliveroo.co.uk'
 landing_page = source_url + company_url
-company = 'Deliveroo'
 
+processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
+reviews_base_file = os.path.join(project_dir, 'output.csv')
+
+company = 'Deliveroo'
+col_names = ['Company', 'Id', 'Reviewer_Id', 'Title', 'Review', 'Date', 'Rating']
+ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
+
+#company_url = '/review/www.deliveroo.co.uk?b=MTYxNDM2ODY0MDAwMHw2MDM5NGY4MGY4NWQ3NTA5ZDhlNWE1N2M'
 base_df = pd.read_csv(reviews_base_file, sep=',')
 print('Base file has {0} rows and {1} unique Ids'.format(base_df.shape[0], len(base_df['Id'].unique())))
 

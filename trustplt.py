@@ -1,7 +1,7 @@
 import pandas as pd
-import urllib
+from urllib import request
 import re
-import dateutil.parser
+from dateutil.parser import isoparse
 from datetime import datetime
 
 from typing import List, Mapping
@@ -22,7 +22,7 @@ def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
         URL of the webpage that will be transformed to a HTML object.
     """
     #print('Attempting to retrieve HTML object for {0}'.format(target_url))
-    request = urllib.request.urlopen(target_url)
+    request = request.urlopen(target_url)
     if request.getcode() != 200:
         raise Exception('Can not communicate with the client')        
     else:
@@ -114,7 +114,7 @@ def getReviewDateTime(review: element.Tag):
         for child in parent.children:
             if 'publishedDate' in str(child):
                 published_date = child.strip().split(',')[0][18:43]
-                published_date= dateutil.parser.isoparse(published_date)
+                published_date= isoparse(published_date)
     
     return published_date.strftime("%Y-%m-%d %H:%M")
 
@@ -191,7 +191,7 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
                                            col_names=col_names, company_name=company_name)
             if page not in processed_pages:
                 print(page)
-                file.write(page +'\t' + str(datetime.now()) + '\n')
+                file.write(page +'\t' + company_name +'\t' +  str(datetime.now()) + '\n')
                 pages_ls.append(df)
             landing_page = base_domain + page
             steps -= 1

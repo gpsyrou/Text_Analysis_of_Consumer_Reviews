@@ -1,5 +1,5 @@
 import pandas as pd
-from urllib import request
+import urllib
 import re
 from dateutil.parser import isoparse
 from datetime import datetime
@@ -22,7 +22,7 @@ def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
         URL of the webpage that will be transformed to a HTML object.
     """
     #print('Attempting to retrieve HTML object for {0}'.format(target_url))
-    request = request.urlopen(target_url)
+    request = urllib.request.urlopen(target_url)
     if request.getcode() != 200:
         raise Exception('Can not communicate with the client')        
     else:
@@ -198,3 +198,11 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
     file.close()
 
     return pd.concat(pages_ls)
+
+
+def flushLastProcessedPage(processed_urls_f: str, company_name: str) -> 'str':
+    """
+    Read through 'processed_urls_f' and retrieve the last processed web url for
+    a specific company.
+    """
+    pass

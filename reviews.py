@@ -26,7 +26,7 @@ base_df = pd.read_csv(reviews_base_file, sep=',')
 print('Base file has {0} rows and {1} unique Ids'.format(base_df.shape[0], len(base_df['Id'].unique())))
 
 new_reviews_df = pilot.trustPltSniffer(base_domain=source_url, starting_page=company_url,
-                      steps=20, processed_urls_f=processed_pages_file,
+                      steps=10, processed_urls_f=processed_pages_file,
                       ratings_dict=ratings_dict, col_names=col_names, company_name=company)
 
 base_df_updated = pd.concat([base_df, new_reviews_df], axis=0)

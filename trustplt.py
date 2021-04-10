@@ -205,4 +205,12 @@ def flushLastProcessedPage(processed_urls_f: str, company_name: str) -> 'str':
     Read through 'processed_urls_f' and retrieve the last processed web url for
     a specific company.
     """
-    pass
+    with open(processed_urls_f, 'r') as file:
+        lines = file.readlines()
+        relevant_urls = []
+        for line in lines:
+            page_info = line.split('\t') 
+            if page_info[1] == company_name:
+                relevant_urls.append(page_info[0])
+
+    return relevant_urls[-1]

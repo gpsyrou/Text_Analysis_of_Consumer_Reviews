@@ -33,3 +33,7 @@ base_df_updated = pd.concat([base_df, new_reviews_df], axis=0)
 print('Updated base file has {0} rows and {1} unique Ids'.format(base_df_updated.shape[0], len(base_df_updated['Id'].unique())))
 
 base_df_updated.to_csv(reviews_base_file, sep=',', index=False)
+
+
+pilot.flushLastProcessedPage(processed_urls_f=processed_pages_file, company_name=company)
+

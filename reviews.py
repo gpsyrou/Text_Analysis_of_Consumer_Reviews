@@ -1,13 +1,10 @@
 
 import os
 import pandas as pd
-from typing import List
-from datetime import datetime 
 
 project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
 
-from helpers.utilities import retrieveProcessedPages, NoDataRetrievedError
 import trustplt as pilot
 
 source_url = 'https://uk.trustpilot.com'

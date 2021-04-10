@@ -8,6 +8,7 @@ project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
 
 import trustplt as pilot
+from helpers.utilities import flushLastProcessedPage
 
 json_loc = 'config.json'
 
@@ -46,7 +47,7 @@ base_df_updated.to_csv(reviews_base_file, sep=',', index=False)
 
 print('Data retrieval for {0} finished...'.format(company))
 
-config['starting_page'] = pilot.flushLastProcessedPage(processed_urls_f=processed_pages_file, company_name=company)
+config['starting_page'] = flushLastProcessedPage(processed_urls_f=processed_pages_file, company_name=company)
 
 with open(json_loc, "w") as json_file:
     json.dump(config, json_file)

@@ -212,5 +212,6 @@ def flushLastProcessedPage(processed_urls_f: str, company_name: str) -> 'str':
             page_info = line.split('\t') 
             if page_info[1] == company_name:
                 relevant_urls.append(page_info[0])
-
+        relevant_urls.sort(key=lambda x: x[2])
+        file.close()
     return relevant_urls[-1]

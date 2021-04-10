@@ -1,14 +1,14 @@
 import pandas as pd
 import urllib
 import re
-import dateutil.parser
+from dateutil.parser import isoparse
 from datetime import datetime
 
 from typing import List, Mapping
 
 from bs4 import (BeautifulSoup,
                  element)
-from helpers.utilities import processedPages, NoDataRetrievedError
+from helpers.utilities import retrieveProcessedPages, NoDataRetrievedError
 
 
 def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
@@ -49,6 +49,7 @@ def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
     
     rev_num_atr = reviews_html.find_all('span', attrs={'class': rvw_num_att})
     rev_num_atr = [span.get_text() for span in rev_num_atr][0].replace(',', '')
+    
     return int(rev_num_atr)
 
 
@@ -74,11 +75,13 @@ def getReviewTitle(review: element.Tag,
 
 def getReviewerId(review: element.Tag, rvw_userid_att='consumer-information') -> str:
     reviewer_id_obj = review.find_all('a', attrs={'class': rvw_userid_att})
+    
     return reviewer_id_obj[0].get('href').replace('/users/', '')
 
 
 def getReviewUniqueId(review: element.Tag) -> str:
     review_id_obj = review.find_all('article', attrs={'class': 'review'})
+    
     return review_id_obj[0].get('id')
 
 
@@ -99,6 +102,7 @@ def getReviewRating(review: element.Tag, ratings_dict: Mapping[int, str],
         img = div.find('img', alt=True)
         rating_str = img['alt']
     rating_str = {int(rating_str[0]):ratings_dict[int(rating_str[0])]}
+    
     return rating_str
 
 
@@ -110,17 +114,20 @@ def getReviewDateTime(review: element.Tag):
         for child in parent.children:
             if 'publishedDate' in str(child):
                 published_date = child.strip().split(',')[0][18:43]
-                published_date= dateutil.parser.isoparse(published_date)
+                published_date= isoparse(published_date)
+    
     return published_date.strftime("%Y-%m-%d %H:%M")
 
 
 def reviewsPageToDataFrame(reviews: element.ResultSet,
                            ratings_dict: Mapping[int, str],
-                           col_names: List['str']) -> pd.core.frame.DataFrame:
+                           col_names: List['str'],
+                           company_name: 'str') -> pd.core.frame.DataFrame:
     """
     Transform a single page of reviews into a pandas DataFrame. Columns are 
     following the order as defined in col_names.
     """
+    company_name_ls = [company_name] * len(reviews)
     review_id_ls = []
     reviewer_id_ls = []
     title_ls = []
@@ -136,14 +143,14 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
         datetime_ls.append(getReviewDateTime(reviews[i]))
         ratings_ls.append(getReviewRating(reviews[i], ratings_dict=ratings_dict))
 
-    reviews_df = pd.DataFrame(list(zip(review_id_ls, reviewer_id_ls, title_ls, text_ls, datetime_ls,
+    reviews_df = pd.DataFrame(list(zip(company_name_ls, review_id_ls, reviewer_id_ls, title_ls, text_ls, datetime_ls,
                                    ratings_ls)), columns = col_names)
     return reviews_df
 
 
 def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
                     processed_urls_f: str, ratings_dict: Mapping[int, str],
-                    col_names: List['str']) -> pd.core.frame.DataFrame:
+                    col_names: List['str'], company_name: 'str') -> pd.core.frame.DataFrame:
     """
     Generate a dataframe with the data retrieved from TrustPilot for a
     specified target 
@@ -161,7 +168,6 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
 
     Returns
     --------
-    merged_data_df:
          A pandas dataframe object that contains the merged data retrieved by
          looping through different url pages.
     
@@ -174,7 +180,7 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
     """
     pages_ls = []
     landing_page = base_domain + starting_page
-    file_content = processedPages(processed_urls_f)
+    processed_pages = retrieveProcessedPages(processed_urls_f)
     
     with open(processed_urls_f, 'a') as file:
         while steps != 0:
@@ -182,14 +188,30 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
             page = retrieveNextPage(reviews_page_html)
             reviews = retrieveReviews(reviews_page_html)
             df = reviewsPageToDataFrame(reviews, ratings_dict=ratings_dict,
-                                           col_names=col_names)
-            if page not in file_content:
+                                           col_names=col_names, company_name=company_name)
+            if page not in processed_pages:
                 print(page)
-                file.write(page +'\t' + str(datetime.now()) + '\n')
+                file.write(page +'\t' + company_name +'\t' +  str(datetime.now()) + '\n')
                 pages_ls.append(df)
             landing_page = base_domain + page
             steps -= 1
     file.close()
-    merged_data_df = pd.concat(pages_ls)
 
-    return merged_data_df
+    return pd.concat(pages_ls)
+
+
+def flushLastProcessedPage(processed_urls_f: str, company_name: str) -> 'str':
+    """
+    Read through 'processed_urls_f' and retrieve the last processed web url for
+    a specific company.
+    """
+    with open(processed_urls_f, 'r') as file:
+        lines = file.readlines()
+        relevant_urls = []
+        for line in lines:
+            page_info = line.split('\t') 
+            if page_info[1] == company_name:
+                relevant_urls.append(page_info[0])
+        relevant_urls.sort(key=lambda x: x[2])
+        file.close()
+    return relevant_urls[-1]

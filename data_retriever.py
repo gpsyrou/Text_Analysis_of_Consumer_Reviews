@@ -19,14 +19,14 @@ json_file.close()
 starting_page = config['starting_page']
 steps = config['steps']
 
-source_url = 'https://uk.trustpilot.com'
+source_url = config['source_url']
 # starting_page = '/review/www.deliveroo.co.uk'
 landing_page = source_url + starting_page
 
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 reviews_base_file = os.path.join(project_dir, 'output.csv')
 
-company = 'Deliveroo'
+company = config['company']
 col_names = ['Company', 'Id', 'Reviewer_Id', 'Title', 'Review', 'Date', 'Rating']
 ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
 

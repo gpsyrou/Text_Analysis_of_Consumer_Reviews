@@ -21,11 +21,10 @@ starting_page = config['starting_page']
 steps = config['steps']
 
 source_url = config['source_url']
-# starting_page = '/review/www.deliveroo.co.uk'
 landing_page = source_url + starting_page
 
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
-reviews_base_file = os.path.join(project_dir, 'output.csv')
+reviews_base_file = os.path.join(project_dir, 'reviews.csv')
 
 
 col_names = ['Company', 'Id', 'Reviewer_Id', 'Title', 'Review', 'Date', 'Rating']

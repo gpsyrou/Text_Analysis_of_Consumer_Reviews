@@ -14,3 +14,7 @@ col_names = ['Company', 'Id', 'Reviewer_Id', 'Title', 'Review', 'Date', 'Rating'
 ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
 
 base_df = pd.read_csv(reviews_base_file, sep=',')
+
+base_df['Company'].value_counts()
+
+

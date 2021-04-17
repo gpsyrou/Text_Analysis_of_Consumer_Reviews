@@ -115,7 +115,10 @@ def getReviewDateTime(review: element.Tag):
         for child in parent.children:
             if 'publishedDate' in str(child):
                 published_date = child.strip().split(',')[0][18:43]
-                published_date= isoparse(published_date)
+                try:
+                    published_date= isoparse(published_date)
+                except ValueError:
+                    return
     
     return published_date.strftime("%Y-%m-%d %H:%M")
 
@@ -196,7 +199,7 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
                 pages_ls.append(df)
             landing_page = base_domain + page
             steps -= 1
-            time.sleep(3)
+            time.sleep(1)
     file.close()
 
     return pd.concat(pages_ls)

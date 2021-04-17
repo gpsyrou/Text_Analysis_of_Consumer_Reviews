@@ -1,5 +1,6 @@
 import pandas as pd
 import urllib
+import time
 import re
 from dateutil.parser import isoparse
 from datetime import datetime
@@ -195,6 +196,7 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
                 pages_ls.append(df)
             landing_page = base_domain + page
             steps -= 1
+            time.sleep(3)
     file.close()
 
     return pd.concat(pages_ls)

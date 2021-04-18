@@ -5,6 +5,11 @@ class NoDataRetrievedError(Exception):
         self.msg = 'No data could be retrieved or field was empty'
 
 
+def splitRatingsColumn(rating_text):
+    rating_text = rating_text.replace('\'','').replace('{','').replace('}','')
+    return rating_text[0], rating_text[3:]
+
+
 def retrieveProcessedPages(input_file: str) -> List['str']:
     """
     Returns a list of all the links that are already processed.

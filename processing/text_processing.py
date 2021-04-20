@@ -13,13 +13,16 @@ from nltk.corpus import stopwords
 
 stopwords_ls = stopwords.words('english')
 
+punct_ls = list(string.punctuation)
+punct_ls.extend([2*x for x in list(string.punctuation)])
+punct_ls.extend([3*x for x in list(string.punctuation)])
 
 def remove_stopwords(text: List['str'], stpwds_ls: List['str']) -> List['str']:
     return [token for token in text if token not in stpwds_ls]
 
 
-def remove_punctuation(text: List['str']) -> List['str']:
-    return [token for token in text if token not in list(string.punctuation)]
+def remove_punctuation(text: List['str'], punct_ls: List['str']) -> List['str']:
+    return [token for token in text if token not in punct_ls]
 
 
 def remove_numbers(text: List['str']) -> List['str']:
@@ -53,7 +56,7 @@ def tokenize_and_clean(text: str, stopwords=True, punct=True,
     tokenized = [token.lower() for token in tokenized]
 
     if punct:
-        tokenized = remove_punctuation(tokenized)
+        tokenized = remove_punctuation(tokenized, punct_ls=punct_ls)
         
     if numerics:
         tokenized = remove_numbers(tokenized)

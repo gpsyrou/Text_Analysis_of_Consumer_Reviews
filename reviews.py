@@ -35,7 +35,7 @@ reviewers_multiple =  base_df['Reviewer_Id'].value_counts()
 f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
 
 
-test = base_df['Review'].iloc[0]
+test = base_df['Review'].iloc[12]
 
 tp.tokenize_and_clean(text=test)
 

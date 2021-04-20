@@ -50,15 +50,16 @@ def tokenize_and_clean(text: str, stopwords=True, punct=True,
          the cleanup steps performed.
     """
     tokenized = nltk.word_tokenize(text, language='english')
-    
-    if stopwords:
-        tokenized = remove_stopwords(tokenized, stpwds_ls=stopwords_ls)
-    
+    tokenized = [token.lower() for token in tokenized]
+
     if punct:
         tokenized = remove_punctuation(tokenized)
         
     if numerics:
         tokenized = remove_numbers(tokenized)
-    
+        
+    if stopwords:
+        tokenized = remove_stopwords(tokenized, stpwds_ls=stopwords_ls)
+
     return tokenized
 

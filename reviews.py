@@ -6,7 +6,6 @@ import pandas as pd
 project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
 
-import trustplt as pilot
 from helpers.utilities import splitRatingsColumn
 from processing import text_processing as tp
 
@@ -36,8 +35,7 @@ reviewers_multiple =  base_df['Reviewer_Id'].value_counts()
 f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
 
 
-
-test = base_df['Review'].iloc[2]
+test = base_df['Review'].iloc[0]
 
 tp.tokenize_and_clean(text=test)
 

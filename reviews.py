@@ -39,16 +39,30 @@ f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
 
 import nltk
 from typing import List
+import string
 from nltk.corpus import stopwords
 
 stopwords_ls = stopwords.words('english')
 
-test = base_df['Review'].iloc[0]
+test = base_df['Review'].iloc[2]
 
 nltk.word_tokenize(test,language='english')
 
 
-def tokenize_and_clean(text, punct=True, numerics=True) -> List[str]:
+def remove_stopwords(text: List['str'], stopwords_ls: List['str']) -> List['str']:
+    return [token for token in text if token not in stopwords_ls]
+
+
+def remove_punctuation(text: List['str']) -> List['str']:
+    return [token for token in text if token not in list(string.punctuation)]
+
+
+def remove_numbers(text: List['str']) -> List['str']:
+    return [token for token in text if not token.isdigit()]
+
+
+def tokenize_and_clean(text: str, stopwords=True, punct=True,
+                       numerics=True) -> List[str]:
     """
     Performs tokenizations and cleaning processes given a document/text.
     The function will always tokenize the given text but the cleaning tasks
@@ -58,7 +72,8 @@ def tokenize_and_clean(text, punct=True, numerics=True) -> List[str]:
     ----------
     text: 
         A document, which can be a word or sentence of arbitrary length.
-
+    stopwords: default True
+        Indicator of removing tokens that are stopwords.
     punct: 
         Indicator of removing tokens that are punctuation marks.
     numerics: 
@@ -71,12 +86,17 @@ def tokenize_and_clean(text, punct=True, numerics=True) -> List[str]:
     """
     tokenized = nltk.word_tokenize(text, language='english')
     
+    if stopwords:
+        tokenized = remove_stopwords(tokenized, stopwords_ls=stopwords_ls)
     
+    if punct:
+        tokenized = remove_punctuation(tokenized)
+        
+    if numerics:
+        tokenized = remove_numbers(tokenized)
     
     return tokenized
 
 
-
-def remove_stopwords(text: List['str'], stopwords_ls: List['str']) -> List['str']:
-    return [token for token in text if token not in stopwords_ls]
+tokenize_and_clean(test)
 

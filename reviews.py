@@ -8,6 +8,7 @@ os.chdir(project_dir)
 
 import trustplt as pilot
 from helpers.utilities import splitRatingsColumn
+from processing import text_processing as tp
 
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 reviews_base_file = os.path.join(project_dir, 'reviews.csv')
@@ -36,67 +37,7 @@ f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
 
 
 
-
-import nltk
-from typing import List
-import string
-from nltk.corpus import stopwords
-
-stopwords_ls = stopwords.words('english')
-
 test = base_df['Review'].iloc[2]
 
-nltk.word_tokenize(test,language='english')
-
-
-def remove_stopwords(text: List['str'], stopwords_ls: List['str']) -> List['str']:
-    return [token for token in text if token not in stopwords_ls]
-
-
-def remove_punctuation(text: List['str']) -> List['str']:
-    return [token for token in text if token not in list(string.punctuation)]
-
-
-def remove_numbers(text: List['str']) -> List['str']:
-    return [token for token in text if not token.isdigit()]
-
-
-def tokenize_and_clean(text: str, stopwords=True, punct=True,
-                       numerics=True) -> List[str]:
-    """
-    Performs tokenizations and cleaning processes given a document/text.
-    The function will always tokenize the given text but the cleaning tasks
-    are optional.
-    
-    Parameters
-    ----------
-    text: 
-        A document, which can be a word or sentence of arbitrary length.
-    stopwords: default True
-        Indicator of removing tokens that are stopwords.
-    punct: 
-        Indicator of removing tokens that are punctuation marks.
-    numerics: 
-        Indicator of removing tokens that correspond to numbers.
-
-    Returns
-    --------
-         A tokenized version of 'text' with the necessary updates depending on
-         the cleanup steps performed.
-    """
-    tokenized = nltk.word_tokenize(text, language='english')
-    
-    if stopwords:
-        tokenized = remove_stopwords(tokenized, stopwords_ls=stopwords_ls)
-    
-    if punct:
-        tokenized = remove_punctuation(tokenized)
-        
-    if numerics:
-        tokenized = remove_numbers(tokenized)
-    
-    return tokenized
-
-
-tokenize_and_clean(test)
+tp.tokenize_and_clean(text=test)
 

@@ -37,5 +37,9 @@ f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
 
 test = base_df['Review'].iloc[12]
 
-tp.tokenize_and_clean(text=test)
+test = tp.tokenize_and_clean(text=test)
+
+tp.lemmatize(text=test, pos_type='a')
+
+tp.stem(text=test)
 

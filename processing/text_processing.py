@@ -9,9 +9,11 @@ import string
 import nltk
 from typing import List
 from nltk.corpus import stopwords
-
+from nltk.stem import WordNetLemmatizer, PorterStemmer
 
 stopwords_ls = stopwords.words('english')
+lemmatizer = WordNetLemmatizer()
+stemmer = PorterStemmer()
 
 punct_ls = list(string.punctuation)
 punct_ls.extend([2*x for x in list(string.punctuation)])
@@ -65,4 +67,12 @@ def tokenize_and_clean(text: str, stopwords=True, punct=True,
         tokenized = remove_stopwords(tokenized, stpwds_ls=stopwords_ls)
 
     return tokenized
+
+
+def lemmatize(text: List['str'], pos_type = 'a') -> List['str']:
+    return [lemmatizer.lemmatize(token, pos=pos_type) for token in text]
+
+
+def stem(text: List['str']) -> List['str']:
+    return [stemmer.stem(token) for token in text]
 

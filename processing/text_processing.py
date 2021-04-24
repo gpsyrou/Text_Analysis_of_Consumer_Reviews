@@ -19,11 +19,13 @@ punct_ls = list(string.punctuation)
 punct_ls.extend([2*x for x in list(string.punctuation)])
 punct_ls.extend([3*x for x in list(string.punctuation)])
 
-def remove_stopwords(text: List['str'], stpwds_ls: List['str']) -> List['str']:
+def remove_stopwords(text: List['str'],
+                     stpwds_ls: List['str']) -> List['str']:
     return [token for token in text if token not in stpwds_ls]
 
 
-def remove_punctuation(text: List['str'], punct_ls: List['str']) -> List['str']:
+def remove_punctuation(text: List['str'],
+                       punct_ls: List['str']) -> List['str']:
     return [token for token in text if token not in punct_ls]
 
 
@@ -31,7 +33,9 @@ def remove_numbers(text: List['str']) -> List['str']:
     return [token for token in text if not token.isdigit()]
 
 
-def tokenize_and_clean(text: str, stopwords=True, punct=True,
+def tokenize_and_clean(text: str,
+                       stopwords=True,
+                       punct=True,
                        numerics=True) -> List[str]:
     """
     Performs tokenizations and cleaning processes given a document/text.
@@ -69,7 +73,8 @@ def tokenize_and_clean(text: str, stopwords=True, punct=True,
     return tokenized
 
 
-def lemmatize(text: List['str'], pos_type = 'a') -> List['str']:
+def lemmatize(text: List['str'],
+              pos_type = 'a') -> List['str']:
     return [lemmatizer.lemmatize(token, pos=pos_type) for token in text]
 
 

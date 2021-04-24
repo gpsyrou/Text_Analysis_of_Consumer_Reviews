@@ -20,7 +20,8 @@ def retrieveProcessedPages(input_file: str) -> List['str']:
     return processed_pages
 
 
-def flushLastProcessedPage(processed_urls_f: str, company_name: str) -> 'str':
+def flushLastProcessedPage(processed_urls_f: str,
+                           company_name: str) -> 'str':
     """
     Read through 'processed_urls_f' and retrieve the last processed web url for
     a specific company.

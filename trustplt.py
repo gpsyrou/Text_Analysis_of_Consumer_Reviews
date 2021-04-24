@@ -199,20 +199,23 @@ def trustPltSniffer(base_domain: str,
     with open(processed_urls_f, 'a') as file:
         while steps != 0:
             reviews_page_html = reviewsPageToHTMLObject(landing_page)
-            page = retrieveNextPage(reviews_page_html)
-            reviews = retrieveReviews(reviews_page_html)
-            df = reviewsPageToDataFrame(reviews,
-                                        ratings_dict=ratings_dict,
-                                        col_names=col_names,
-                                        company_name=company_name)
-            if page not in processed_pages:
-                print(page)
-                file.write(page +'\t' +
-                           company_name +'\t' +  str(datetime.now()) + '\n')
-                pages_ls.append(df)
-            landing_page = base_domain + page
-            steps -= 1
-            time.sleep(1)
+            try:
+                page = retrieveNextPage(reviews_page_html)
+                reviews = retrieveReviews(reviews_page_html)
+                df = reviewsPageToDataFrame(reviews,
+                                            ratings_dict=ratings_dict,
+                                            col_names=col_names,
+                                            company_name=company_name)
+                if page not in processed_pages:
+                    print(page)
+                    file.write(page +'\t' +
+                            company_name +'\t' +  str(datetime.now()) + '\n')
+                    pages_ls.append(df)
+                landing_page = base_domain + page
+                steps -= 1
+                time.sleep(1)
+            except IndexError:
+                pass
     file.close()
 
     return pd.concat(pages_ls)

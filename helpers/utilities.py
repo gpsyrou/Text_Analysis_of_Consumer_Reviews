@@ -5,6 +5,11 @@ class NoDataRetrievedError(Exception):
         self.msg = 'No data could be retrieved or field was empty'
 
 
+def splitRatingsColumn(rating_text):
+    rating_text = rating_text.replace('\'','').replace('{','').replace('}','')
+    return rating_text[0], rating_text[3:]
+
+
 def retrieveProcessedPages(input_file: str) -> List['str']:
     """
     Returns a list of all the links that are already processed.
@@ -15,7 +20,8 @@ def retrieveProcessedPages(input_file: str) -> List['str']:
     return processed_pages
 
 
-def flushLastProcessedPage(processed_urls_f: str, company_name: str) -> 'str':
+def flushLastProcessedPage(processed_urls_f: str,
+                           company_name: str) -> 'str':
     """
     Read through 'processed_urls_f' and retrieve the last processed web url for
     a specific company.

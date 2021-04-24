@@ -4,11 +4,10 @@ import time
 import re
 from dateutil.parser import isoparse
 from datetime import datetime
-
 from typing import List, Mapping
-
 from bs4 import (BeautifulSoup,
                  element)
+
 from helpers.utilities import retrieveProcessedPages, NoDataRetrievedError
 
 
@@ -74,7 +73,8 @@ def getReviewTitle(review: element.Tag,
         raise NoDataRetrievedError
 
 
-def getReviewerId(review: element.Tag, rvw_userid_att='consumer-information') -> str:
+def getReviewerId(review: element.Tag,
+                  rvw_userid_att='consumer-information') -> str:
     reviewer_id_obj = review.find_all('a', attrs={'class': rvw_userid_att})
     
     return reviewer_id_obj[0].get('href').replace('/users/', '')
@@ -96,7 +96,8 @@ def getReviewText(review: element.Tag,
         pass
 
 
-def getReviewRating(review: element.Tag, ratings_dict: Mapping[int, str],
+def getReviewRating(review: element.Tag,
+                    ratings_dict: Mapping[int, str],
                     rvw_rating_att='star-rating star-rating--medium') -> dict:
     rating_obj = review.find_all('div', attrs={'class': rvw_rating_att})
     for div in rating_obj:
@@ -115,7 +116,10 @@ def getReviewDateTime(review: element.Tag):
         for child in parent.children:
             if 'publishedDate' in str(child):
                 published_date = child.strip().split(',')[0][18:43]
-                published_date= isoparse(published_date)
+                try:
+                    published_date= isoparse(published_date)
+                except ValueError:
+                    return
     
     return published_date.strftime("%Y-%m-%d %H:%M")
 
@@ -144,14 +148,23 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
         datetime_ls.append(getReviewDateTime(reviews[i]))
         ratings_ls.append(getReviewRating(reviews[i], ratings_dict=ratings_dict))
 
-    reviews_df = pd.DataFrame(list(zip(company_name_ls, review_id_ls, reviewer_id_ls, title_ls, text_ls, datetime_ls,
-                                   ratings_ls)), columns = col_names)
+    reviews_df = pd.DataFrame(list(zip(company_name_ls,
+                                       review_id_ls,
+                                       reviewer_id_ls,
+                                       title_ls,
+                                       text_ls,
+                                       datetime_ls,
+                                       ratings_ls)), columns = col_names)
     return reviews_df
 
 
-def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
-                    processed_urls_f: str, ratings_dict: Mapping[int, str],
-                    col_names: List['str'], company_name: 'str') -> pd.core.frame.DataFrame:
+def trustPltSniffer(base_domain: str,
+                    starting_page: str,
+                    steps: int,
+                    processed_urls_f: str,
+                    ratings_dict: Mapping[int, str],
+                    col_names: List['str'],
+                    company_name: 'str') -> pd.core.frame.DataFrame:
     """
     Generate a dataframe with the data retrieved from TrustPilot for a
     specified target 
@@ -188,15 +201,19 @@ def trustPltSniffer(base_domain: str, starting_page: str, steps: int,
             reviews_page_html = reviewsPageToHTMLObject(landing_page)
             page = retrieveNextPage(reviews_page_html)
             reviews = retrieveReviews(reviews_page_html)
-            df = reviewsPageToDataFrame(reviews, ratings_dict=ratings_dict,
-                                           col_names=col_names, company_name=company_name)
+            df = reviewsPageToDataFrame(reviews,
+                                        ratings_dict=ratings_dict,
+                                        col_names=col_names,
+                                        company_name=company_name)
             if page not in processed_pages:
                 print(page)
-                file.write(page +'\t' + company_name +'\t' +  str(datetime.now()) + '\n')
+                file.write(page +'\t' +
+                           company_name +'\t' +  str(datetime.now()) + '\n')
                 pages_ls.append(df)
             landing_page = base_domain + page
             steps -= 1
-            time.sleep(3)
+            time.sleep(1)
     file.close()
 
     return pd.concat(pages_ls)
+

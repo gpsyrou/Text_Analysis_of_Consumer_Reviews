@@ -34,12 +34,13 @@ base_df['Rating_Text'] = base_df['Rating'].apply(lambda row: ratings_dict[row])
 reviewers_multiple =  base_df['Reviewer_Id'].value_counts()
 f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
 
+# Transform dataset
 
-test = base_df['Review'].iloc[12]
+# Delete rows where the review is empty
+base_df = base_df[base_df['Review'].notna()]
 
-test = tp.tokenize_and_clean(text=test)
+# Split review in tokens and remove punctuation, stopwords
+base_df['Review_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize_and_clean(text=row))
 
-tp.lemmatize(text=test, pos_type='a')
-
-tp.stem(text=test)
-
+# Lemmatize the tokens
+base_df['Review_Lemma'] = base_df['Review_Clean'].apply(lambda row: tp.lemmatize(text=row, pos_type='a'))

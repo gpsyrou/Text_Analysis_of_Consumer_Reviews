@@ -12,12 +12,15 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 
 stopwords_ls = stopwords.words('english')
+stopwords_ls.extend(['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll'])
+
 lemmatizer = WordNetLemmatizer()
 stemmer = PorterStemmer()
 
 punct_ls = list(string.punctuation)
 punct_ls.extend([2*x for x in list(string.punctuation)])
 punct_ls.extend([3*x for x in list(string.punctuation)])
+
 
 def remove_stopwords(text: List['str'],
                      stpwds_ls: List['str']) -> List['str']:

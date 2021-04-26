@@ -43,4 +43,51 @@ base_df = base_df[base_df['Review'].notna()]
 base_df['Review_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize_and_clean(text=row))
 
 # Lemmatize the tokens
-base_df['Review_Lemma'] = base_df['Review_Clean'].apply(lambda row: tp.lemmatize(text=row, pos_type='a'))
+base_df['Review_Lemma'] = base_df['Review_Clean'].apply(lambda row: tp.lemmatize(text=row, pos_type='n'))
+
+
+base_df['Review'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x for x in row]))
+
+
+
+from sklearn.feature_extraction.text import CountVectorizer
+vectorizer = CountVectorizer()
+# apply transformation
+tf = vectorizer.fit_transform(base_df['Review']) #.toarray()
+# tf_feature_names tells us what word each column in the matric represents
+tf_feature_names = vectorizer.get_feature_names()
+tf.shape
+
+from sklearn.decomposition import LatentDirichletAllocation
+number_of_topics = 5
+model = LatentDirichletAllocation(n_components=number_of_topics, random_state=45, n_jobs=-1) # random state for reproducibility
+# Fit data to model
+model.fit(tf) # (15349, 17697) i.e. 15349 documents (rows), and 17697 words (columns)
+
+
+model.fit_transform(tf[1:5])
+
+model.components_
+
+model.exp_dirichlet_component_
+model.get_params
+
+len(model.exp_dirichlet_component_[0])
+
+
+f = model.exp_dirichlet_component_[0]
+
+k = zip(tf_feature_names, f)
+k = [x for x in k]
+
+
+def display_topics(model, feature_names, no_top_words):
+    for topic_idx, topic in enumerate(model.components_):
+        print("Topic %d:" % (topic_idx))
+        print(" ".join([feature_names[i]
+                        for i in topic.argsort()[:-no_top_words - 1:-1]]))
+
+no_top_words = 10
+
+display_topics(model, tf_feature_names, no_top_words)
+

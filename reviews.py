@@ -50,6 +50,43 @@ base_df['Review'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x for x 
 
 
 
+
+
+# Exploratory Data Analysis
+ 
+from collections import Counter
+
+def most_common_words(input_df:pd.DataFrame,
+                      text_col: str,
+                      n_most_common=20):
+    """
+    Given a collection of documents as text, compute the number of most common
+    words as defined by n_most_common.
+    Args:
+    ------
+        input_df: Dataframe that contains the relevant text column
+        text_col: Name of the column
+        n_most_common: Number of most common words to calculate
+    Returns:
+    --------
+        Pandas dataframe with two columns indicating a word and number
+        of times (count) that it appears in the original input_df
+    """
+    word_list = list([x.split() for x in input_df[text_col] if x is not None])
+    word_counter = Counter(x for xs in word_list for x in set(xs))
+    word_counter.most_common(n_most_common)
+
+    common_words_df = pd.DataFrame(word_counter.most_common(n_most_common),
+                                   columns=['words', 'count'])
+    return common_words_df
+    
+most_common_words(base_df, text_col='Review', n_most_common=10)
+
+
+
+
+
+# LDA
 from sklearn.feature_extraction.text import CountVectorizer
 vectorizer = CountVectorizer()
 # apply transformation

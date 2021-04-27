@@ -46,7 +46,7 @@ base_df['Review_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize_and_cl
 base_df['Review_Lemma'] = base_df['Review_Clean'].apply(lambda row: tp.lemmatize(text=row, pos_type='n'))
 
 
-base_df['Review'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x for x in row]))
+base_df['Review_Merged'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x for x in row]))
 
 
 
@@ -54,6 +54,8 @@ base_df['Review'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x for x 
 
 # Exploratory Data Analysis
  
+import matplotlib.pyplot as plt
+import seaborn as sns
 from collections import Counter
 
 def most_common_words(input_df:pd.DataFrame,
@@ -76,14 +78,30 @@ def most_common_words(input_df:pd.DataFrame,
     word_counter = Counter(x for xs in word_list for x in set(xs))
     word_counter.most_common(n_most_common)
 
-    common_words_df = pd.DataFrame(word_counter.most_common(n_most_common),
-                                   columns=['words', 'count'])
-    return common_words_df
-    
-most_common_words(base_df, text_col='Review', n_most_common=10)
+    return pd.DataFrame(word_counter.most_common(n_most_common),
+                        columns=['words', 'count'])
 
 
+most_common_words(base_df, text_col='Review_Merged', n_most_common=10)
 
+
+def plot_most_common_words(input_df:pd.DataFrame,
+                           text_col: str,
+                           n_most_common=20,
+                           figsize=(10, 10)) -> None:
+
+    fig, ax = plt.subplots(figsize=figsize)
+    common_words_df = most_common_words(input_df=input_df,
+                                        text_col=text_col,
+                                        n_most_common=n_most_common)
+    sns.barplot(x='count',
+                y='words',
+                data=common_words_df).set_title(f'Common Words Found - Overall', fontweight='bold')
+
+    plt.grid(True, alpha=0.3, linestyle='-', color='black')
+    plt.show()
+
+plot_most_common_words(base_df,  n_most_common=10, text_col='Review_Merged')
 
 
 # LDA

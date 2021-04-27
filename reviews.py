@@ -8,6 +8,7 @@ os.chdir(project_dir)
 
 from helpers.utilities import splitRatingsColumn
 from processing import text_processing as tp
+from texteda import most_common_words, plot_most_common_words
 
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 reviews_base_file = os.path.join(project_dir, 'reviews.csv')
@@ -53,53 +54,7 @@ base_df['Review_Merged'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x
 
 
 # Exploratory Data Analysis
- 
-import matplotlib.pyplot as plt
-import seaborn as sns
-from collections import Counter
-
-def most_common_words(input_df:pd.DataFrame,
-                      text_col: str,
-                      n_most_common=20):
-    """
-    Given a collection of documents as text, compute the number of most common
-    words as defined by n_most_common.
-    Args:
-    ------
-        input_df: Dataframe that contains the relevant text column
-        text_col: Name of the column
-        n_most_common: Number of most common words to calculate
-    Returns:
-    --------
-        Pandas dataframe with two columns indicating a word and number
-        of times (count) that it appears in the original input_df
-    """
-    word_list = list([x.split() for x in input_df[text_col] if x is not None])
-    word_counter = Counter(x for xs in word_list for x in set(xs))
-    word_counter.most_common(n_most_common)
-
-    return pd.DataFrame(word_counter.most_common(n_most_common),
-                        columns=['words', 'count'])
-
-
 most_common_words(base_df, text_col='Review_Merged', n_most_common=10)
-
-
-def plot_most_common_words(input_df:pd.DataFrame,
-                           text_col: str,
-                           n_most_common=20,
-                           figsize=(10, 10)) -> None:
-
-    fig, ax = plt.subplots(figsize=figsize)
-    common_words_df = most_common_words(input_df=input_df,
-                                        text_col=text_col,
-                                        n_most_common=n_most_common)
-    sns.barplot(x='count',
-                y='words',
-                data=common_words_df).set_title(f'Common Words Found - Overall', fontweight='bold')
-
-    plt.grid(True, alpha=0.3, linestyle='-', color='black')
-    plt.show()
 
 plot_most_common_words(base_df,  n_most_common=10, text_col='Review_Merged')
 

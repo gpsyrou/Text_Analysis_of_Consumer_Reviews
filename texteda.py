@@ -3,12 +3,15 @@ Package that contains a collection of function that can be used for generic
 exploratory data analysis on text.
 """
 
-
 from pandas import DataFrame
-import matplotlib.pyplot as plt
-import seaborn as sns
-from collections import Counter
+from seaborn import barplot
 from wordcloud import WordCloud
+from collections import Counter
+from nltk.collocations import BigramCollocationFinder
+from nltk import word_tokenize
+
+import matplotlib.pyplot as plt
+
 
 def most_common_words(input_df:DataFrame,
                       text_col: str,
@@ -43,9 +46,9 @@ def plot_most_common_words(input_df:DataFrame,
     common_words_df = most_common_words(input_df=input_df,
                                         text_col=text_col,
                                         n_most_common=n_most_common)
-    sns.barplot(x='count',
-                y='words',
-                data=common_words_df).set_title(f'Common Words Found - Overall', fontweight='bold')
+    barplot(x='count',
+            y='words',
+            data=common_words_df).set_title(f'Common Words Found - Overall', fontweight='bold')
 
     plt.grid(True, alpha=0.3, linestyle='-', color='black')
     plt.show()
@@ -59,8 +62,29 @@ def plot_wordcloud(input_df:DataFrame,
     in a set documents
     """
     plt.figure(figsize=figsize)
-    gen_text = ' '.join([x for x in input_df[text_col] if x is not None])
-    wordcloud = WordCloud().generate(gen_text)
+    combined_text = ' '.join([x for x in input_df[text_col] if x is not None])
+    wordcloud = WordCloud().generate(combined_text)
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
     plt.show()
+
+
+def compute_bigrams(input_df:DataFrame,
+                    text_col: str) -> dict:
+    """
+    Calculate the number of occurences that a pair of words appear next to
+    each other, and return a dictionary of pair of words - count.
+    """
+    combined_text = ' '.join([x for x in input_df[text_col]])
+
+    finder = BigramCollocationFinder.from_words(word_tokenize(combined_text))
+
+    bigrams_dict = {}
+    for k, v in finder.ngram_fd.items():
+        # Condition to avoid characters like '@' and '#'
+        if len(k[0]) > 1 and len(k[1]) > 1 and "'s" not in k:
+            bigrams_dict[k] = v
+        else:
+            continue
+    return bigrams_dict
+

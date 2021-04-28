@@ -8,7 +8,10 @@ os.chdir(project_dir)
 
 from helpers.utilities import splitRatingsColumn
 from processing import text_processing as tp
-from texteda import most_common_words, plot_most_common_words
+from texteda import (most_common_words,
+                     plot_most_common_words,
+                     plot_wordcloud,
+                     compute_bigrams)
 
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 reviews_base_file = os.path.join(project_dir, 'reviews.csv')
@@ -57,6 +60,10 @@ base_df['Review_Merged'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x
 most_common_words(base_df, text_col='Review_Merged', n_most_common=10)
 
 plot_most_common_words(base_df,  n_most_common=10, text_col='Review_Merged')
+
+plot_wordcloud(base_df, text_col='Review_Merged')
+
+compute_bigrams(base_df, text_col='Review_Merged')
 
 
 # LDA

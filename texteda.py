@@ -88,3 +88,26 @@ def compute_bigrams(input_df:DataFrame,
             continue
     return bigrams_dict
 
+
+def plot_bigrams(input_df:DataFrame,
+                 text_col: str,
+                 top_n: int,
+                 figsize=(10, 8)) -> None:
+
+    bigrams_dict = compute_bigrams(input_df=input_df, text_col=text_col)
+    bigrams_sorted = sorted(bigrams_dict.items(),
+                            key=lambda x: x[1],
+                            reverse=True)[0:top_n]
+
+    bgram, counts = list(zip(*bigrams_sorted))
+    bgstring = list(map(lambda txt: '-'.join(txt), bgram))
+
+    plt.figure(figsize=figsize)
+    g = barplot(bgstring, counts, palette='muted')
+    g.set_xticklabels(g.get_xticklabels(), rotation=80)
+    plt.title(f'Top-{top_n} pairs of words that appear next to each other',
+              fontweight='bold')
+    plt.ylabel('Count')
+    plt.grid(True, alpha=0.2, color='black')
+    plt.show()  
+

@@ -11,7 +11,8 @@ from processing import text_processing as tp
 from texteda import (most_common_words,
                      plot_most_common_words,
                      plot_wordcloud,
-                     compute_bigrams)
+                     compute_bigrams,
+                     plot_bigrams)
 
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 reviews_base_file = os.path.join(project_dir, 'reviews.csv')
@@ -65,6 +66,7 @@ plot_wordcloud(base_df, text_col='Review_Merged')
 
 compute_bigrams(base_df, text_col='Review_Merged')
 
+plot_bigrams(input_df=base_df, text_col='Review_Merged', top_n=10)
 
 # LDA
 from sklearn.feature_extraction.text import CountVectorizer

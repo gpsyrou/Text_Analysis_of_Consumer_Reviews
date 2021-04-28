@@ -8,7 +8,7 @@ from pandas import DataFrame
 import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import Counter
-
+from wordcloud import WordCloud
 
 def most_common_words(input_df:DataFrame,
                       text_col: str,
@@ -48,4 +48,19 @@ def plot_most_common_words(input_df:DataFrame,
                 data=common_words_df).set_title(f'Common Words Found - Overall', fontweight='bold')
 
     plt.grid(True, alpha=0.3, linestyle='-', color='black')
+    plt.show()
+
+
+def plot_wordcloud(input_df:DataFrame,
+                   text_col: str,
+                   figsize=(10, 10)) -> None:
+    """
+    Generate a WordCloud plot based on the number of occurenences of words
+    in a set documents
+    """
+    plt.figure(figsize=figsize)
+    gen_text = ' '.join([x for x in input_df[text_col] if x is not None])
+    wordcloud = WordCloud().generate(gen_text)
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis("off")
     plt.show()

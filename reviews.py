@@ -14,6 +14,8 @@ from texteda import (most_common_words,
                      compute_bigrams,
                      plot_bigrams)
 
+from nltk.corpus import stopwords
+
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 reviews_base_file = os.path.join(project_dir, 'reviews.csv')
 
@@ -22,6 +24,8 @@ ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}
 
 base_df = pd.read_csv(reviews_base_file, sep=',')
 
+stopwords_ls = stopwords.words('english')
+stopwords_ls.extend(['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll'])
 
 
 # See a distribution of number of reviews among all companies
@@ -45,7 +49,7 @@ f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
 base_df = base_df[base_df['Review'].notna()]
 
 # Split review in tokens and remove punctuation, stopwords
-base_df['Review_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize_and_clean(text=row))
+base_df['Review_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize_and_clean(text=row, stopwords_ls=stopwords_ls))
 
 # Lemmatize the tokens
 base_df['Review_Lemma'] = base_df['Review_Clean'].apply(lambda row: tp.lemmatize(text=row, pos_type='n'))

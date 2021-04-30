@@ -8,11 +8,7 @@ clean text from numbers, stopwords
 import string
 import nltk
 from typing import List
-from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer, PorterStemmer
-
-stopwords_ls = stopwords.words('english')
-stopwords_ls.extend(['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll'])
 
 lemmatizer = WordNetLemmatizer()
 stemmer = PorterStemmer()
@@ -37,10 +33,10 @@ def remove_numbers(text: List['str']) -> List['str']:
 
 
 def tokenize_and_clean(text: str,
+                       stopwords_ls: List[str],
                        stopwords=True,
                        punct=True,
-                       numerics=True,
-                       to_lower=True) -> List[str]:
+                       numerics=True) -> List[str]:
     """
     Performs tokenizations and cleaning processes given a document/text.
     The function will always tokenize the given text but the cleaning tasks
@@ -63,8 +59,8 @@ def tokenize_and_clean(text: str,
          the cleanup steps performed.
     """
     tokenized = nltk.word_tokenize(text, language='english')
-    if to_lower:
-        tokenized = [token.lower() for token in tokenized]
+    
+    tokenized = [token.lower() for token in tokenized]
 
     if punct:
         tokenized = remove_punctuation(tokenized, punct_ls=punct_ls)

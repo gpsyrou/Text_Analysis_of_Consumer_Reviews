@@ -1,6 +1,7 @@
 
 import os
 import pandas as pd
+from typing import List
 
 project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
@@ -77,17 +78,17 @@ plot_bigrams(input_df=base_df, text_col='Review_Merged', top_n=10)
 
 # LDA
 from sklearn.feature_extraction.text import CountVectorizer
-vectorizer = CountVectorizer()
+vectorizer = CountVectorizer(max_df=1.0, min_df=1, max_features=500)
 
 '''
 This create a sparse matrix where each row is a document and each column
 is a word. The values [xi, yi] represent a count of how many times a word
-appears in that document. We can also use a TfidfVectorizer
+appears in that document.
 '''
 
 # apply transformation
-tf = vectorizer.fit_transform(base_df['Review']) #.toarray()
-# tf_feature_names tells us what word each column in the matric represents
+tf = vectorizer.fit_transform(base_df['Review_Merged']) #.toarray()
+# tf_feature_names tells us what word each column in the matrix represents
 tf_feature_names = vectorizer.get_feature_names()
 tf.shape
 
@@ -98,20 +99,30 @@ model = LatentDirichletAllocation(n_components=number_of_topics, random_state=45
 model.fit(tf) # (15349, 17697) i.e. 15349 documents (rows), and 17697 words (columns)
 
 
-model.fit_transform(tf[1:5])
+model.fit_transform(tf[1:2])
+'''
+The output is a NxM matrix where N is number of samples(e.g. a document)
+and M is the number of topics.
+Gives the probability of the document to belong to each of the topics
+'''
 
 model.components_
+'''
+this gives the weight of each word for a specific document
+'''
 
 model.exp_dirichlet_component_
 model.get_params
 
-len(model.exp_dirichlet_component_[0])
 
+def get_topics(model, feature_names: List[str], num_top_words: int):
+    topics_dict = {}
+    for i, topic in enumerate(model.components_):
+        weights = sorted(zip(feature_names, topic), key=lambda x: x[1], reverse=True)
+        topics_dict['Topic: '+ str(i)] = weights[0:num_top_words]
+    return topics_dict
 
-f = model.exp_dirichlet_component_[0]
-
-k = zip(tf_feature_names, f)
-k = [x for x in k]
+get_topics(model, tf_feature_names, 5)
 
 
 def display_topics(model, feature_names, no_top_words):
@@ -122,5 +133,5 @@ def display_topics(model, feature_names, no_top_words):
 
 no_top_words = 10
 
-display_topics(model, tf_feature_names, no_top_words)
+display_topics(model, tf_feature_names, 5)
 

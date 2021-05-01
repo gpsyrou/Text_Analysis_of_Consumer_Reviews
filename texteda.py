@@ -3,14 +3,13 @@ Package that contains a collection of function that can be used for generic
 exploratory data analysis on text.
 """
 
+import matplotlib.pyplot as plt
 from pandas import DataFrame
 from seaborn import barplot
 from wordcloud import WordCloud
 from collections import Counter
 from nltk.collocations import BigramCollocationFinder
 from nltk import word_tokenize
-
-import matplotlib.pyplot as plt
 
 
 def most_common_words(input_df:DataFrame,

@@ -73,9 +73,18 @@ compute_bigrams(base_df, text_col='Review_Merged')
 
 plot_bigrams(input_df=base_df, text_col='Review_Merged', top_n=10)
 
+
+
 # LDA
 from sklearn.feature_extraction.text import CountVectorizer
 vectorizer = CountVectorizer()
+
+'''
+This create a sparse matrix where each row is a document and each column
+is a word. The values [xi, yi] represent a count of how many times a word
+appears in that document. We can also use a TfidfVectorizer
+'''
+
 # apply transformation
 tf = vectorizer.fit_transform(base_df['Review']) #.toarray()
 # tf_feature_names tells us what word each column in the matric represents

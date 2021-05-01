@@ -1,6 +1,5 @@
 
 import os
-import numpy as np
 import pandas as pd
 
 project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
@@ -8,6 +7,13 @@ os.chdir(project_dir)
 
 from helpers.utilities import splitRatingsColumn
 from processing import text_processing as tp
+from texteda import (most_common_words,
+                     plot_most_common_words,
+                     plot_wordcloud,
+                     compute_bigrams,
+                     plot_bigrams)
+
+from nltk.corpus import stopwords
 
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 reviews_base_file = os.path.join(project_dir, 'reviews.csv')
@@ -17,7 +23,11 @@ ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}
 
 base_df = pd.read_csv(reviews_base_file, sep=',')
 
+stopwords_ls = stopwords.words('english')
+stopwords_ls.extend(['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll', 'n\'t', '’'])
 
+common_delivery_words = ['delivery', 'deliver', 'driver', 'order', 'uber', 'stuart', 'deliveroo']
+stopwords_ls.extend(common_delivery_words)
 
 # See a distribution of number of reviews among all companies
 base_df['Company'].value_counts()
@@ -31,8 +41,8 @@ base_df['Rating'] = base_df['Rating'].apply(lambda row: splitRatingsColumn(row)[
 base_df['Rating_Text'] = base_df['Rating'].apply(lambda row: ratings_dict[row])
 
 # Are there reviewers that have submitted to more than one reviews ?
-reviewers_multiple =  base_df['Reviewer_Id'].value_counts()
-f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
+# reviewers_multiple =  base_df['Reviewer_Id'].value_counts()
+# f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
 
 # Transform dataset
 
@@ -40,16 +50,30 @@ f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
 base_df = base_df[base_df['Review'].notna()]
 
 # Split review in tokens and remove punctuation, stopwords
-base_df['Review_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize_and_clean(text=row))
+base_df['Review_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize_and_clean(text=row, stopwords_ls=stopwords_ls))
 
 # Lemmatize the tokens
 base_df['Review_Lemma'] = base_df['Review_Clean'].apply(lambda row: tp.lemmatize(text=row, pos_type='n'))
 
 
-base_df['Review'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x for x in row]))
+base_df['Review_Merged'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x for x in row]))
 
 
 
+
+
+# Exploratory Data Analysis
+most_common_words(base_df, text_col='Review_Merged', n_most_common=10)
+
+plot_most_common_words(base_df,  n_most_common=10, text_col='Review_Merged')
+
+plot_wordcloud(base_df, text_col='Review_Merged')
+
+compute_bigrams(base_df, text_col='Review_Merged')
+
+plot_bigrams(input_df=base_df, text_col='Review_Merged', top_n=10)
+
+# LDA
 from sklearn.feature_extraction.text import CountVectorizer
 vectorizer = CountVectorizer()
 # apply transformation

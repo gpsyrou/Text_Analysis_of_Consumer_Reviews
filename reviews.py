@@ -1,6 +1,5 @@
 
 import os
-import numpy as np
 import pandas as pd
 
 project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
@@ -25,8 +24,10 @@ ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}
 base_df = pd.read_csv(reviews_base_file, sep=',')
 
 stopwords_ls = stopwords.words('english')
-stopwords_ls.extend(['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll'])
+stopwords_ls.extend(['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll', 'n\'t', '’'])
 
+common_delivery_words = ['delivery', 'deliver', 'driver', 'order', 'uber', 'stuart', 'deliveroo']
+stopwords_ls.extend(common_delivery_words)
 
 # See a distribution of number of reviews among all companies
 base_df['Company'].value_counts()
@@ -40,8 +41,8 @@ base_df['Rating'] = base_df['Rating'].apply(lambda row: splitRatingsColumn(row)[
 base_df['Rating_Text'] = base_df['Rating'].apply(lambda row: ratings_dict[row])
 
 # Are there reviewers that have submitted to more than one reviews ?
-reviewers_multiple =  base_df['Reviewer_Id'].value_counts()
-f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
+# reviewers_multiple =  base_df['Reviewer_Id'].value_counts()
+# f = base_df[base_df['Reviewer_Id']==reviewers_multiple.index[0]]
 
 # Transform dataset
 

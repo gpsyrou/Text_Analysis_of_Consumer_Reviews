@@ -108,6 +108,6 @@ def plot_bigrams(input_df:DataFrame,
     plt.title(f'Top-{top_n} pairs of words that appear next to each other',
               fontweight='bold')
     plt.ylabel('Count')
-    plt.grid(True, alpha=0.2, color='black')
+    plt.grid(True, alpha=0.1, color='black')
     plt.show()  
 

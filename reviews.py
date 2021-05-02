@@ -78,7 +78,7 @@ plot_bigrams(input_df=base_df, text_col='Review_Merged', top_n=10)
 
 # LDA
 from sklearn.feature_extraction.text import CountVectorizer
-vectorizer = CountVectorizer(max_df=1.0, min_df=1, max_features=500)
+vectorizer = CountVectorizer(max_df=1.0, min_df=1, max_features=800)
 
 '''
 This create a sparse matrix where each row is a document and each column
@@ -115,23 +115,28 @@ model.exp_dirichlet_component_
 model.get_params
 
 
-def get_topics(model, feature_names: List[str], num_top_words: int):
-    topics_dict = {}
+def get_word_weights_per_topic(model,
+                               feature_names: List[str],
+                               sort=True):
+    word_weights_per_topic = []
     for i, topic in enumerate(model.components_):
-        weights = sorted(zip(feature_names, topic), key=lambda x: x[1], reverse=True)
-        topics_dict['Topic: '+ str(i)] = weights[0:num_top_words]
-    return topics_dict
+        weights = list(zip(feature_names, topic))
+        if sort:
+            weights = sorted(weights, key=lambda x: x[1], reverse=True)
+        word_weights_per_topic.append([i, weights])
+    return word_weights_per_topic
+  
+t = get_word_weights_per_topic(model, feature_names=tf_feature_names)
+t[0][1][0:5]
 
-get_topics(model, tf_feature_names, 5)
+
+def show_top_words_per_topic(model,
+                             feature_names: List[str],
+                             num_top_words: int):
+    for i in range(0, len(model.components_)):
+        weights = get_word_weights_per_topic(model, feature_names)[i][1]
+        print('Topic {0} : {1}'.format(i, weights[0:num_top_words]))
 
 
-def display_topics(model, feature_names, no_top_words):
-    for topic_idx, topic in enumerate(model.components_):
-        print("Topic %d:" % (topic_idx))
-        print(" ".join([feature_names[i]
-                        for i in topic.argsort()[:-no_top_words - 1:-1]]))
-
-no_top_words = 10
-
-display_topics(model, tf_feature_names, 5)
+show_top_words_per_topic(model, feature_names=tf_feature_names, num_top_words=5)
 

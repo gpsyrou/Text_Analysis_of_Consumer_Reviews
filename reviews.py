@@ -90,34 +90,35 @@ appears in that document.
 tf = vectorizer.fit_transform(base_df['Review_Merged']) #.toarray()
 # tf_feature_names tells us what word each column in the matrix represents
 tf_feature_names = vectorizer.get_feature_names()
-tf.shape
+tf.shape # (15407, 800)
 
 from sklearn.decomposition import LatentDirichletAllocation
 number_of_topics = 5
-model = LatentDirichletAllocation(n_components=number_of_topics, random_state=45, n_jobs=-1) # random state for reproducibility
+lda_model = LatentDirichletAllocation(n_components=number_of_topics,
+                                      random_state=45,
+                                      n_jobs=-1,
+                                      verbose=1) # random state for reproducibility
 # Fit data to model
-model.fit(tf) # (15349, 17697) i.e. 15349 documents (rows), and 17697 words (columns)
+lda_model.fit(tf) # (15349, 17697) i.e. 15349 documents (rows), and 17697 words (columns)
 
 
-model.fit_transform(tf[1:2])
+lda_model.fit_transform(tf[1:2])
 '''
 The output is a NxM matrix where N is number of samples(e.g. a document)
 and M is the number of topics.
 Gives the probability of the document to belong to each of the topics
 '''
 
-model.components_
+lda_model.components_
 '''
 this gives the weight of each word for a specific document
 '''
 
-model.exp_dirichlet_component_
-model.get_params
+lda_model.exp_dirichlet_component_
+lda_model.get_params
 
 
-def get_word_weights_per_topic(model,
-                               feature_names: List[str],
-                               sort=True):
+def get_word_weights_per_topic(model, feature_names: List[str], sort=True):
     word_weights_per_topic = []
     for i, topic in enumerate(model.components_):
         weights = list(zip(feature_names, topic))
@@ -126,17 +127,15 @@ def get_word_weights_per_topic(model,
         word_weights_per_topic.append([i, weights])
     return word_weights_per_topic
   
-t = get_word_weights_per_topic(model, feature_names=tf_feature_names)
+t = get_word_weights_per_topic(lda_model, feature_names=tf_feature_names)
 t[0][1][0:5]
 
 
-def show_top_words_per_topic(model,
-                             feature_names: List[str],
-                             num_top_words: int):
+def show_top_words_per_topic(model, feature_names: List[str], num_top_words: int):
     for i in range(0, len(model.components_)):
         weights = get_word_weights_per_topic(model, feature_names)[i][1]
         print('Topic {0} : {1}'.format(i, weights[0:num_top_words]))
 
 
-show_top_words_per_topic(model, feature_names=tf_feature_names, num_top_words=5)
+show_top_words_per_topic(lda_model, feature_names=tf_feature_names, num_top_words=5)
 

@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from typing import List
 
-project_dir = '/Users/georgiosspyrou/Desktop/GitHub/Projects/Text_Analysis_of_Consumer_Reviews/Text_Analysis_of_Consumer_Reviews'
+project_dir = 'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
 
 from helpers.utilities import splitRatingsColumn
@@ -27,7 +27,7 @@ base_df = pd.read_csv(reviews_base_file, sep=',')
 stopwords_ls = stopwords.words('english')
 stopwords_ls.extend(['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll', 'n\'t', '’'])
 
-common_delivery_words = ['delivery', 'deliver', 'driver', 'order', 'uber', 'stuart', 'deliveroo']
+common_delivery_words = ['delivery', 'deliver', 'driver', 'order', 'uber', 'stuart', 'deliveroo', 'food', 'use', 'get']
 stopwords_ls.extend(common_delivery_words)
 
 # See a distribution of number of reviews among all companies
@@ -74,6 +74,8 @@ compute_bigrams(base_df, text_col='Review_Merged')
 
 plot_bigrams(input_df=base_df, text_col='Review_Merged', top_n=10)
 
+# Deliveroo
+most_common_words(base_df[base_df['Company'] == 'Deliveroo'], text_col='Review_Merged', n_most_common=10)
 
 
 # LDA
@@ -156,7 +158,7 @@ print(corpus[:1][0][:30])
 
 from pprint import pprint
 # number of topics
-num_topics = 5
+num_topics = 3
 # Build LDA model
 lda_model = gensim.models.LdaMulticore(corpus=corpus,
                                        id2word=id2word,
@@ -164,3 +166,23 @@ lda_model = gensim.models.LdaMulticore(corpus=corpus,
 # Print the Keyword in the 5 topics
 pprint(lda_model.print_topics())
 doc_lda = lda_model[corpus]
+
+
+import pyLDAvis.gensim
+import pickle 
+import pyLDAvis
+# Visualize the topics
+pyLDAvis.enable_notebook()
+LDAvis_data_filepath = os.path.join('./results/ldavis_prepared_'+str(num_topics))
+# # this is a bit time consuming - make the if statement True
+# # if you want to execute visualization prep yourself
+if 1 == 1:
+    LDAvis_prepared = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
+    with open(LDAvis_data_filepath, 'wb') as f:
+        pickle.dump(LDAvis_prepared, f)
+# load the pre-prepared pyLDAvis data from disk
+with open(LDAvis_data_filepath, 'rb') as f:
+    LDAvis_prepared = pickle.load(f)
+pyLDAvis.save_html(LDAvis_prepared, './results/ldavis_prepared_'+ str(num_topics) +'.html')
+LDAvis_prepared
+

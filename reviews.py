@@ -61,8 +61,6 @@ base_df['Review_Merged'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x
 
 
 
-
-
 # Exploratory Data Analysis
 most_common_words(base_df, text_col='Review_Merged', n_most_common=10)
 
@@ -158,7 +156,7 @@ print(corpus[:1][0][:30])
 
 from pprint import pprint
 # number of topics
-num_topics = 3
+num_topics = 5
 # Build LDA model
 lda_model = gensim.models.LdaMulticore(corpus=corpus,
                                        id2word=id2word,

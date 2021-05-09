@@ -1,8 +1,9 @@
 
 import os
 import pandas as pd
+from typing import List
 
-project_dir = r'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
+project_dir = 'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
 
 from helpers.utilities import splitRatingsColumn
@@ -26,7 +27,7 @@ base_df = pd.read_csv(reviews_base_file, sep=',')
 stopwords_ls = stopwords.words('english')
 stopwords_ls.extend(['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll', 'n\'t', '’'])
 
-common_delivery_words = ['delivery', 'deliver', 'driver', 'order', 'uber', 'stuart', 'deliveroo']
+common_delivery_words = ['delivery', 'deliver', 'driver', 'order', 'uber', 'stuart', 'deliveroo', 'food', 'use', 'get']
 stopwords_ls.extend(common_delivery_words)
 
 # See a distribution of number of reviews among all companies
@@ -60,8 +61,6 @@ base_df['Review_Merged'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x
 
 
 
-
-
 # Exploratory Data Analysis
 most_common_words(base_df, text_col='Review_Merged', n_most_common=10)
 
@@ -73,45 +72,115 @@ compute_bigrams(base_df, text_col='Review_Merged')
 
 plot_bigrams(input_df=base_df, text_col='Review_Merged', top_n=10)
 
+# Deliveroo
+most_common_words(base_df[base_df['Company'] == 'Deliveroo'], text_col='Review_Merged', n_most_common=10)
+
+
 # LDA
 from sklearn.feature_extraction.text import CountVectorizer
-vectorizer = CountVectorizer()
+vectorizer = CountVectorizer(max_df=1.0, min_df=1, max_features=800)
+
+'''
+This create a sparse matrix where each row is a document and each column
+is a word. The values [xi, yi] represent a count of how many times a word
+appears in that document.
+'''
+
 # apply transformation
-tf = vectorizer.fit_transform(base_df['Review']) #.toarray()
-# tf_feature_names tells us what word each column in the matric represents
+tf = vectorizer.fit_transform(base_df['Review_Merged']) #.toarray()
+# tf_feature_names tells us what word each column in the matrix represents
 tf_feature_names = vectorizer.get_feature_names()
-tf.shape
+tf.shape # (15407, 800)
 
 from sklearn.decomposition import LatentDirichletAllocation
 number_of_topics = 5
-model = LatentDirichletAllocation(n_components=number_of_topics, random_state=45, n_jobs=-1) # random state for reproducibility
+lda_model = LatentDirichletAllocation(n_components=number_of_topics,
+                                      random_state=45,
+                                      n_jobs=-1,
+                                      verbose=1) # random state for reproducibility
 # Fit data to model
-model.fit(tf) # (15349, 17697) i.e. 15349 documents (rows), and 17697 words (columns)
+lda_model.fit(tf) # (15349, 17697) i.e. 15349 documents (rows), and 17697 words (columns)
 
 
-model.fit_transform(tf[1:5])
+lda_model.fit_transform(tf[1:2])
+'''
+The output is a NxM matrix where N is number of samples(e.g. a document)
+and M is the number of topics.
+Gives the probability of the document to belong to each of the topics
+'''
 
-model.components_
+lda_model.components_
+'''
+this gives the weight of each word for a specific document
+'''
 
-model.exp_dirichlet_component_
-model.get_params
-
-len(model.exp_dirichlet_component_[0])
-
-
-f = model.exp_dirichlet_component_[0]
-
-k = zip(tf_feature_names, f)
-k = [x for x in k]
+lda_model.exp_dirichlet_component_
+lda_model.get_params
 
 
-def display_topics(model, feature_names, no_top_words):
-    for topic_idx, topic in enumerate(model.components_):
-        print("Topic %d:" % (topic_idx))
-        print(" ".join([feature_names[i]
-                        for i in topic.argsort()[:-no_top_words - 1:-1]]))
+def get_word_weights_per_topic(model, feature_names: List[str], sort=True):
+    word_weights_per_topic = []
+    for i, topic in enumerate(model.components_):
+        weights = list(zip(feature_names, topic))
+        if sort:
+            weights = sorted(weights, key=lambda x: x[1], reverse=True)
+        word_weights_per_topic.append([i, weights])
+    return word_weights_per_topic
+  
+t = get_word_weights_per_topic(lda_model, feature_names=tf_feature_names)
+t[0][1][0:5]
 
-no_top_words = 10
 
-display_topics(model, tf_feature_names, no_top_words)
+def show_top_words_per_topic(model, feature_names: List[str], num_top_words: int):
+    for i in range(0, len(model.components_)):
+        weights = get_word_weights_per_topic(model, feature_names)[i][1]
+        print('Topic {0} : {1}'.format(i, weights[0:num_top_words]))
+
+
+show_top_words_per_topic(lda_model, feature_names=tf_feature_names, num_top_words=5)
+
+
+
+# Gensim
+import gensim
+import gensim.corpora as corpora
+# Create Dictionary
+id2word = corpora.Dictionary(base_df['Review_Lemma'])
+
+# Create Corpus
+texts = base_df['Review_Lemma']
+# Term Document Frequency
+corpus = [id2word.doc2bow(text) for text in texts]
+# View
+print(corpus[:1][0][:30])
+
+from pprint import pprint
+# number of topics
+num_topics = 5
+# Build LDA model
+lda_model = gensim.models.LdaMulticore(corpus=corpus,
+                                       id2word=id2word,
+                                       num_topics=num_topics)
+# Print the Keyword in the 5 topics
+pprint(lda_model.print_topics())
+doc_lda = lda_model[corpus]
+
+
+import pyLDAvis.gensim
+import pickle 
+import pyLDAvis
+# Visualize the topics
+pyLDAvis.enable_notebook()
+LDAvis_data_filepath = os.path.join('./results/ldavis_prepared_'+str(num_topics))
+# # this is a bit time consuming - make the if statement True
+# # if you want to execute visualization prep yourself
+if 1 == 1:
+    LDAvis_prepared = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
+    with open(LDAvis_data_filepath, 'wb') as f:
+        pickle.dump(LDAvis_prepared, f)
+# load the pre-prepared pyLDAvis data from disk
+with open(LDAvis_data_filepath, 'rb') as f:
+    LDAvis_prepared = pickle.load(f)
+pyLDAvis.save_html(LDAvis_prepared, './results/ldavis_prepared_'+ str(num_topics) +'.html')
+LDAvis_prepared
 

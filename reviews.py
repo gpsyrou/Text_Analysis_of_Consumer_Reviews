@@ -139,3 +139,28 @@ def show_top_words_per_topic(model, feature_names: List[str], num_top_words: int
 
 show_top_words_per_topic(lda_model, feature_names=tf_feature_names, num_top_words=5)
 
+
+
+# Gensim
+import gensim
+import gensim.corpora as corpora
+# Create Dictionary
+id2word = corpora.Dictionary(base_df['Review_Lemma'])
+
+# Create Corpus
+texts = base_df['Review_Lemma']
+# Term Document Frequency
+corpus = [id2word.doc2bow(text) for text in texts]
+# View
+print(corpus[:1][0][:30])
+
+from pprint import pprint
+# number of topics
+num_topics = 5
+# Build LDA model
+lda_model = gensim.models.LdaMulticore(corpus=corpus,
+                                       id2word=id2word,
+                                       num_topics=num_topics)
+# Print the Keyword in the 5 topics
+pprint(lda_model.print_topics())
+doc_lda = lda_model[corpus]

@@ -147,7 +147,8 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
         title_ls.append(getReviewTitle(reviews[i]))
         text_ls.append(getReviewText(reviews[i]))
         datetime_ls.append(getReviewDateTime(reviews[i]))
-        ratings_ls.append(getReviewRating(reviews[i], ratings_dict=ratings_dict))
+        ratings_ls.append(getReviewRating(reviews[i],
+                                          ratings_dict=ratings_dict))
 
     reviews_df = pd.DataFrame(list(zip(company_name_ls,
                                        review_id_ls,

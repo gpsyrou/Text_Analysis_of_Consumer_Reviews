@@ -47,7 +47,8 @@ def plot_most_common_words(input_df:DataFrame,
                                         n_most_common=n_most_common)
     barplot(x='count',
             y='words',
-            data=common_words_df).set_title(f'Common Words Found - Overall', fontweight='bold')
+            data=common_words_df).set_title(f'Common Words Found - Overall',
+                                fontweight='bold')
 
     plt.grid(True, alpha=0.3, linestyle='-', color='black')
     plt.show()

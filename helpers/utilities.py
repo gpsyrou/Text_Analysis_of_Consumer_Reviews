@@ -1,5 +1,6 @@
 from typing import List
 
+
 class NoDataRetrievedError(Exception):
     def __init__(self):
         self.msg = 'No data could be retrieved or field was empty'
@@ -36,3 +37,8 @@ def flushLastProcessedPage(processed_urls_f: str,
         relevant_urls.sort(key=lambda x: x[2])
         file.close()
     return relevant_urls[-1]
+
+
+def getRatingsMapping():
+    return {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
+

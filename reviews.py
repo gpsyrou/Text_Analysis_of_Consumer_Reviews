@@ -6,7 +6,7 @@ from typing import List
 project_dir = 'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
 
-from helpers.utilities import splitRatingsColumn
+from helpers.utilities import splitRatingsColumn, getRatingsMapping
 from processing import text_processing as tp
 from texteda import (most_common_words,
                      plot_most_common_words,
@@ -19,8 +19,7 @@ from nltk.corpus import stopwords
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 reviews_base_file = os.path.join(project_dir, 'reviews.csv')
 
-col_names = ['Company', 'Id', 'Reviewer_Id', 'Title', 'Review', 'Date', 'Rating']
-ratings_dict = {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
+ratings_dict = getRatingsMapping()
 
 base_df = pd.read_csv(reviews_base_file, sep=',')
 

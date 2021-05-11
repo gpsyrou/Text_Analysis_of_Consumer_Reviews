@@ -51,29 +51,29 @@ base_df['Rating_Text'] = base_df['Rating'].apply(lambda row: ratings_dict[row])
 base_df = base_df[base_df['Review'].notna()]
 
 # Split review in tokens and remove punctuation, stopwords
-base_df['Review_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize_and_clean(text=row, stopwords_ls=stopwords_ls))
+base_df['Review_Tokens_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize_and_clean(text=row, stopwords_ls=stopwords_ls))
 
 # Lemmatize the tokens
-base_df['Review_Lemma'] = base_df['Review_Clean'].apply(lambda row: tp.lemmatize(text=row, pos_type='n'))
+base_df['Review_Tokens_Lemma'] = base_df['Review_Tokens_Clean'].apply(lambda row: tp.lemmatize(text=row, pos_type='n'))
 
 
-base_df['Review_Merged'] = base_df['Review_Lemma'].apply(lambda row: ' '.join([x for x in row]))
+base_df['Reviews_Clean'] = base_df['Review_Tokens_Lemma'].apply(lambda row: ' '.join([x for x in row]))
 
 
 
 # Exploratory Data Analysis
-most_common_words(base_df, text_col='Review_Merged', n_most_common=10)
+most_common_words(base_df, text_col='Reviews_Clean', n_most_common=10)
 
-plot_most_common_words(base_df,  n_most_common=10, text_col='Review_Merged')
+plot_most_common_words(base_df,  n_most_common=10, text_col='Reviews_Clean')
 
-plot_wordcloud(base_df, text_col='Review_Merged')
+plot_wordcloud(base_df, text_col='Reviews_Clean')
 
-compute_bigrams(base_df, text_col='Review_Merged')
+compute_bigrams(base_df, text_col='Reviews_Clean')
 
-plot_bigrams(input_df=base_df, text_col='Review_Merged', top_n=10)
+plot_bigrams(input_df=base_df, text_col='Reviews_Clean', top_n=10)
 
 # Deliveroo
-most_common_words(base_df[base_df['Company'] == 'Deliveroo'], text_col='Review_Merged', n_most_common=10)
+most_common_words(base_df[base_df['Company'] == 'Deliveroo'], text_col='Reviews_Clean', n_most_common=10)
 
 
 # LDA
@@ -89,7 +89,7 @@ appears in that document.
 '''
 
 # apply transformation
-term_freq = vectorizer.fit_transform(base_df['Review_Merged']) #.toarray()
+term_freq = vectorizer.fit_transform(base_df['Reviews_Clean']) #.toarray()
 # tf_feature_names tells us what word each column in the matrix represents
 tf_feature_names = vectorizer.get_feature_names()
 term_freq.shape # (15407, 800)
@@ -147,10 +147,10 @@ show_top_words_per_topic(lda_model, feature_names=tf_feature_names, num_top_word
 import gensim
 import gensim.corpora as corpora
 # Create Dictionary
-id2word = corpora.Dictionary(base_df['Review_Lemma'])
+id2word = corpora.Dictionary(base_df['Review_Tokens_Lemma'])
 
 # Create Corpus
-texts = base_df['Review_Lemma']
+texts = base_df['Review_Tokens_Lemma']
 # Term Document Frequency
 corpus = [id2word.doc2bow(text) for text in texts]
 # View

@@ -78,7 +78,9 @@ most_common_words(base_df[base_df['Company'] == 'Deliveroo'], text_col='Review_M
 
 # LDA
 from sklearn.feature_extraction.text import CountVectorizer
-vectorizer = CountVectorizer(max_df=1.0, min_df=1, max_features=800)
+vectorizer = CountVectorizer(max_df=1.0,
+                             min_df=0.01,
+                             max_features=3000)
 
 '''
 This create a sparse matrix where each row is a document and each column
@@ -87,10 +89,10 @@ appears in that document.
 '''
 
 # apply transformation
-tf = vectorizer.fit_transform(base_df['Review_Merged']) #.toarray()
+term_freq = vectorizer.fit_transform(base_df['Review_Merged']) #.toarray()
 # tf_feature_names tells us what word each column in the matrix represents
 tf_feature_names = vectorizer.get_feature_names()
-tf.shape # (15407, 800)
+term_freq.shape # (15407, 800)
 
 from sklearn.decomposition import LatentDirichletAllocation
 number_of_topics = 5
@@ -99,10 +101,10 @@ lda_model = LatentDirichletAllocation(n_components=number_of_topics,
                                       n_jobs=-1,
                                       verbose=1) # random state for reproducibility
 # Fit data to model
-lda_model.fit(tf) # (15349, 17697) i.e. 15349 documents (rows), and 17697 words (columns)
+lda_model.fit(term_freq) # (15349, 17697) i.e. 15349 documents (rows), and 17697 words (columns)
 
 
-lda_model.fit_transform(tf[1:2])
+lda_model.fit_transform(term_freq[1:2])
 '''
 The output is a NxM matrix where N is number of samples(e.g. a document)
 and M is the number of topics.

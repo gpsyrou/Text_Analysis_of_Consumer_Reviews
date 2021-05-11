@@ -24,9 +24,12 @@ ratings_dict = getRatingsMapping()
 base_df = pd.read_csv(reviews_base_file, sep=',')
 
 stopwords_ls = stopwords.words('english')
-stopwords_ls.extend(['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll', 'n\'t', '’'])
+stpw_charlist = ['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll', 'n\'t', '’']
 
-common_delivery_words = ['delivery', 'deliver', 'driver', 'order', 'uber', 'stuart', 'deliveroo', 'food', 'use', 'get']
+common_delivery_words = ['delivery', 'deliver', 'driver', 'order', 'uber',
+                         'stuart', 'deliveroo', 'food', 'use', 'get']
+
+stopwords_ls.extend(stpw_charlist)
 stopwords_ls.extend(common_delivery_words)
 
 # See a distribution of number of reviews among all companies
@@ -72,14 +75,16 @@ compute_bigrams(base_df, text_col='Reviews_Clean')
 plot_bigrams(input_df=base_df, text_col='Reviews_Clean', top_n=10)
 
 # Deliveroo
-most_common_words(base_df[base_df['Company'] == 'Deliveroo'], text_col='Reviews_Clean', n_most_common=10)
+most_common_words(base_df[base_df['Company'] == 'Deliveroo'],
+                  text_col='Reviews_Clean',
+                  n_most_common=10)
 
 
 # LDA
 from sklearn.feature_extraction.text import CountVectorizer
 vectorizer = CountVectorizer(max_df=1.0,
-                             min_df=0.01,
-                             max_features=3000)
+                             min_df=0.008,
+                             max_features=4000)
 
 '''
 This create a sparse matrix where each row is a document and each column
@@ -94,8 +99,9 @@ tf_feature_names = vectorizer.get_feature_names()
 term_freq.shape # (15407, 800)
 
 from sklearn.decomposition import LatentDirichletAllocation
-number_of_topics = 5
+number_of_topics = 3
 lda_model = LatentDirichletAllocation(n_components=number_of_topics,
+                                      max_iter=20,
                                       random_state=45,
                                       n_jobs=-1,
                                       verbose=1) # random state for reproducibility
@@ -138,7 +144,7 @@ def show_top_words_per_topic(model, feature_names: List[str], num_top_words: int
         print('Topic {0} : {1}'.format(i, weights[0:num_top_words]))
 
 
-show_top_words_per_topic(lda_model, feature_names=tf_feature_names, num_top_words=5)
+show_top_words_per_topic(lda_model, feature_names=tf_feature_names, num_top_words=10)
 
 
 

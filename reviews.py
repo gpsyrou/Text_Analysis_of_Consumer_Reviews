@@ -93,9 +93,9 @@ most_common_words(base_df[base_df['Company'] == 'Deliveroo'],
 
 # LDA
 from sklearn.feature_extraction.text import CountVectorizer
-vectorizer = CountVectorizer(max_df=0.8,
-                             min_df=0.001,
-                             max_features=5000)
+vectorizer = CountVectorizer(max_df=0.7,
+                             min_df=1,
+                             max_features=None)
 
 '''
 This create a sparse matrix where each row is a document and each column

@@ -57,6 +57,7 @@ base_df['Review_Tokens_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize
 
 # Lemmatize the tokens
 base_df['Review_Tokens_Lemma'] = base_df['Review_Tokens_Clean'].apply(lambda row: tp.lemmatize(text=row, pos_type='n'))
+base_df['Review_Tokens_Lemma'] = base_df['Review_Tokens_Lemma'].apply(lambda row: tp.lemmatize(text=row, pos_type='a'))
 
 
 base_df['Reviews_Clean'] = base_df['Review_Tokens_Lemma'].apply(lambda row: ' '.join([x for x in row]))
@@ -74,6 +75,16 @@ compute_bigrams(base_df, text_col='Reviews_Clean')
 
 plot_bigrams(input_df=base_df, text_col='Reviews_Clean', top_n=10)
 
+'''
+From the bigrams plot we can infer that there are 3 main topics in the data:
+    1) Case where order arrived but an item was missing
+    2) Case when items received very late
+    3) Case when the order never arrived
+    
+The customer service related queries might be adding noise in the data as in all
+cases above, the customer most likely would try to contact the customer service
+'''
+
 # Deliveroo
 most_common_words(base_df[base_df['Company'] == 'Deliveroo'],
                   text_col='Reviews_Clean',
@@ -82,9 +93,9 @@ most_common_words(base_df[base_df['Company'] == 'Deliveroo'],
 
 # LDA
 from sklearn.feature_extraction.text import CountVectorizer
-vectorizer = CountVectorizer(max_df=1.0,
-                             min_df=0.008,
-                             max_features=4000)
+vectorizer = CountVectorizer(max_df=0.8,
+                             min_df=0.001,
+                             max_features=5000)
 
 '''
 This create a sparse matrix where each row is a document and each column
@@ -101,7 +112,7 @@ term_freq.shape # (15407, 800)
 from sklearn.decomposition import LatentDirichletAllocation
 number_of_topics = 3
 lda_model = LatentDirichletAllocation(n_components=number_of_topics,
-                                      max_iter=20,
+                                      max_iter=10,
                                       random_state=45,
                                       n_jobs=-1,
                                       verbose=1) # random state for reproducibility
@@ -116,9 +127,10 @@ and M is the number of topics.
 Gives the probability of the document to belong to each of the topics
 '''
 
-lda_model.components_
+lda_model.components_[0]
 '''
 this gives the weight of each word for a specific document
+Its size is number_of_documents x number_of_words
 '''
 
 lda_model.exp_dirichlet_component_

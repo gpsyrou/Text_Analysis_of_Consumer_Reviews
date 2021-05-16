@@ -175,15 +175,15 @@ print(corpus[:1][0][:30])
 
 from pprint import pprint
 # number of topics
-num_topics = 5
+num_topics = 3
 # Build LDA model
 lda_model = gensim.models.LdaMulticore(corpus=corpus,
                                        id2word=id2word,
                                        num_topics=num_topics)
-# Print the Keyword in the 5 topics
+# Print the Keyword in the 3 topics
 pprint(lda_model.print_topics())
-doc_lda = lda_model[corpus]
-
+doc_lda = lda_model[corpus] # We can view each documents distribution over each topic
+len(doc_lda)
 
 import pyLDAvis.gensim
 import pickle 

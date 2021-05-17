@@ -50,7 +50,10 @@ base_df['Rating_Text'] = base_df['Rating'].apply(lambda row: ratings_dict[row])
 # Transform dataset
 
 # Delete rows where the review is empty
-base_df = base_df[base_df['Review'].notna()]
+# base_df = base_df[base_df['Review'].notna()]
+
+# Wherever Review is empty, replace it with Title
+base_df.loc[base_df['Review'].isnull(), 'Review'] = base_df['Title']
 
 # Split review in tokens and remove punctuation, stopwords
 base_df['Review_Tokens_Clean'] = base_df['Review'].apply(lambda row: tp.tokenize_and_clean(text=row, stopwords_ls=stopwords_ls))

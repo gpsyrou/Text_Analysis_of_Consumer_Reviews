@@ -3,7 +3,7 @@ import os
 import json
 import pandas as pd
 
-project_dir = '/Users/georgiosspyrou/Desktop/GitHub/Projects/Text_Analysis_of_Consumer_Reviews/Text_Analysis_of_Consumer_Reviews'
+project_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(project_dir)
 
 import trustplt as pilot

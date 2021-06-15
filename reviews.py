@@ -69,14 +69,15 @@ base_df['Review_Tokens_Lemma'] = base_df['Review_Tokens_Lemma'].apply(lambda row
 base_df['Reviews_Clean'] = base_df['Review_Tokens_Lemma'].apply(lambda row: ' '.join([x for x in row]))
 
 base_df['Review_Bigram'] = base_df['Review_Tokens_Lemma'].apply(lambda row: tp.sentenceToNGramTokens(text=row, ngram_size=2))
+base_df['Review_Bigram_Sentence'] = base_df['Review_Bigram'].apply(lambda row: ' '.join([x for x in row]))
 
 
 # Exploratory Data Analysis
-most_common_words(base_df, text_col='Reviews_Clean', n_most_common=10)
+most_common_words(base_df, text_col='Review_Bigram_Sentence', n_most_common=10)
 
-plot_most_common_words(base_df,  n_most_common=10, text_col='Reviews_Clean')
+plot_most_common_words(base_df,  n_most_common=10, text_col='Review_Bigram_Sentence')
 
-plot_wordcloud(base_df, text_col='Reviews_Clean')
+plot_wordcloud(base_df, text_col='Review_Bigram_Sentence')
 
 compute_bigrams(base_df, text_col='Reviews_Clean')
 
@@ -94,7 +95,7 @@ cases above, the customer most likely would try to contact the customer service
 
 # Deliveroo
 most_common_words(base_df[base_df['Company'] == 'Deliveroo'],
-                  text_col='Reviews_Clean',
+                  text_col='Review_Bigram_Sentence',
                   n_most_common=10)
 
 
@@ -111,7 +112,7 @@ appears in that document.
 '''
 
 # apply transformation
-cv = vectorizer.fit_transform(base_df['Reviews_Clean']) #.toarray()
+cv = vectorizer.fit_transform(base_df['Review_Bigram_Sentence']) #.toarray()
 # tf_feature_names tells us what word each column in the matrix represents
 cv.shape # (15407, 800)
 

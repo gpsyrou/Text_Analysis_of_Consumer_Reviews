@@ -115,9 +115,10 @@ cv = vectorizer.fit_transform(base_df['Reviews_Clean']) #.toarray()
 cv.shape # (15407, 800)
 
 
-def countVectorizerToDict(vectorizer: CountVectorizer, matrix: csr_matrix) -> dict:
+def countVectorizerToDict(vectorizer: CountVectorizer,
+                          matrix: csr_matrix) -> dict:
     feature_names = vectorizer.get_feature_names()
-    counts = np.asarray(cv.sum(axis=0))[0]
+    counts = np.asarray(matrix.sum(axis=0))[0]
     return dict(zip(feature_names, counts))
 
 word_counts = countVectorizerToDict(vectorizer=vectorizer, matrix=cv)

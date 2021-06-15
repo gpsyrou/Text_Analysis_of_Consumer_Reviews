@@ -1,6 +1,7 @@
 
 import os
 import pandas as pd
+from scipy.sparse.csr import csr_matrix
 import numpy as np
 from typing import List
 
@@ -111,12 +112,15 @@ appears in that document.
 # apply transformation
 cv = vectorizer.fit_transform(base_df['Reviews_Clean']) #.toarray()
 # tf_feature_names tells us what word each column in the matrix represents
-tf_feature_names = vectorizer.get_feature_names()
 cv.shape # (15407, 800)
-count_ls = np.asarray(cv.sum(axis=0))[0]
 
-word_counts = dict(zip(tf_feature_names, count_ls))
 
+def countVectorizerToDict(vectorizer: CountVectorizer, matrix: csr_matrix) -> dict:
+    feature_names = vectorizer.get_feature_names()
+    counts = np.asarray(cv.sum(axis=0))[0]
+    return dict(zip(feature_names, counts))
+
+word_counts = countVectorizerToDict(vectorizer=vectorizer, matrix=cv)
 
 
 from sklearn.decomposition import LatentDirichletAllocation

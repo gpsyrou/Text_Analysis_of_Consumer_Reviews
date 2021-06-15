@@ -1,6 +1,7 @@
 
 import os
 import pandas as pd
+import numpy as np
 from typing import List
 
 project_dir = 'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
@@ -27,7 +28,8 @@ stopwords_ls = stopwords.words('english')
 stpw_charlist = ['\'d', '\'m', '\'s', '\'ve', '\'re', '\'ll', 'n\'t', '’']
 
 common_delivery_words = ['delivery', 'deliver', 'driver', 'order', 'uber',
-                         'stuart', 'deliveroo', 'food', 'use', 'get']
+                         'stuart', 'deliveroo', 'food', 'use', 'get', 'service',
+                         'customer', 'refund']
 
 stopwords_ls.extend(stpw_charlist)
 stopwords_ls.extend(common_delivery_words)
@@ -98,7 +100,7 @@ most_common_words(base_df[base_df['Company'] == 'Deliveroo'],
 from sklearn.feature_extraction.text import CountVectorizer
 vectorizer = CountVectorizer(max_df=0.7,
                              min_df=1,
-                             max_features=None)
+                             max_features=6000)
 
 '''
 This create a sparse matrix where each row is a document and each column
@@ -107,10 +109,15 @@ appears in that document.
 '''
 
 # apply transformation
-term_freq = vectorizer.fit_transform(base_df['Reviews_Clean']) #.toarray()
+cv = vectorizer.fit_transform(base_df['Reviews_Clean']) #.toarray()
 # tf_feature_names tells us what word each column in the matrix represents
 tf_feature_names = vectorizer.get_feature_names()
-term_freq.shape # (15407, 800)
+cv.shape # (15407, 800)
+count_ls = np.asarray(cv.sum(axis=0))[0]
+
+word_counts = dict(zip(tf_feature_names, count_ls))
+
+
 
 from sklearn.decomposition import LatentDirichletAllocation
 number_of_topics = 3
@@ -120,10 +127,10 @@ lda_model = LatentDirichletAllocation(n_components=number_of_topics,
                                       n_jobs=-1,
                                       verbose=1) # random state for reproducibility
 # Fit data to model
-lda_model.fit(term_freq) # (15349, 17697) i.e. 15349 documents (rows), and 17697 words (columns)
+lda_model.fit(cv) # (15349, 17697) i.e. 15349 documents (rows), and 17697 words (columns)
 
 
-lda_model.fit_transform(term_freq[1:2])
+# lda_model.fit_transform(term_freq[1:2])
 '''
 The output is a NxM matrix where N is number of samples(e.g. a document)
 and M is the number of topics.

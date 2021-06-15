@@ -68,6 +68,7 @@ base_df['Review_Tokens_Lemma'] = base_df['Review_Tokens_Lemma'].apply(lambda row
 
 base_df['Reviews_Clean'] = base_df['Review_Tokens_Lemma'].apply(lambda row: ' '.join([x for x in row]))
 
+base_df['Review_Bigram'] = base_df['Review_Tokens_Lemma'].apply(lambda row: tp.sentenceToNGramTokens(text=row, ngram_size=2))
 
 
 # Exploratory Data Analysis
@@ -161,7 +162,7 @@ def get_word_weights_per_topic(model, feature_names: List[str], sort=True):
         word_weights_per_topic.append([i, weights])
     return word_weights_per_topic
   
-t = get_word_weights_per_topic(lda_model, feature_names=tf_feature_names)
+t = get_word_weights_per_topic(lda_model, feature_names=vectorizer.get_feature_names())
 t[0][1][0:5]
 
 
@@ -171,7 +172,7 @@ def show_top_words_per_topic(model, feature_names: List[str], num_top_words: int
         print('Topic {0} : {1}'.format(i, weights[0:num_top_words]))
 
 
-show_top_words_per_topic(lda_model, feature_names=tf_feature_names, num_top_words=10)
+show_top_words_per_topic(lda_model, feature_names=vectorizer.get_feature_names(), num_top_words=10)
 
 
 

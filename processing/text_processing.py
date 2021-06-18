@@ -8,6 +8,7 @@ clean text from numbers, stopwords
 import string
 import nltk
 from typing import List
+from nltk.util import ngrams
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 
 lemmatizer = WordNetLemmatizer()
@@ -82,3 +83,11 @@ def lemmatize(text: List['str'],
 def stem(text: List['str']) -> List['str']:
     return [stemmer.stem(token) for token in text]
 
+
+def sentenceToNGramTokens(text: str, ngram_size=2) -> List[str]:
+    """
+    Given a sentence as tokens, return the n-gram combinations joined by an
+    underscore.
+    """
+    return ["_".join(w) for w in ngrams(text, ngram_size)]
+    

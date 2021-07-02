@@ -84,7 +84,7 @@ def stem(text: List['str']) -> List['str']:
     return [stemmer.stem(token) for token in text]
 
 
-def sentenceToNGramTokens(text: str, ngram_size=2) -> List[str]:
+def sentence_to_ngram_tokens(text: str, ngram_size=2) -> List[str]:
     """
     Given a sentence as tokens, return the n-gram combinations joined by an
     underscore.

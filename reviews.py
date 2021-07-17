@@ -8,7 +8,7 @@ from typing import List
 project_dir = 'D:\GitHub\Projects\Analysis_of_Delivery_Companies_Reviews'
 os.chdir(project_dir)
 
-from helpers.utilities import splitRatingsColumn, getRatingsMapping
+from helpers.utilities import get_ratings_mapping, split_ratings_col, get_ratings_mapping
 from processing import text_processing as tp
 from texteda import (most_common_words,
                      plot_most_common_words,
@@ -21,7 +21,7 @@ from nltk.corpus import stopwords
 processed_pages_file = os.path.join(project_dir, 'processed_pages.txt')
 reviews_base_file = os.path.join(project_dir, 'reviews.csv')
 
-ratings_dict = getRatingsMapping()
+ratings_dict = get_ratings_mapping()
 
 base_df = pd.read_csv(reviews_base_file, sep=',')
 
@@ -43,7 +43,7 @@ base_df.drop_duplicates(inplace=True)
 
 # Cast columns specific data format
 base_df['Date'] = pd.to_datetime(base_df['Date'], format="%Y-%m-%d %H:%M", errors='coerce')
-base_df['Rating'] = base_df['Rating'].apply(lambda row: splitRatingsColumn(row)[0]).astype(int)
+base_df['Rating'] = base_df['Rating'].apply(lambda row: split_ratings_col(row)[0]).astype(int)
 base_df['Rating_Text'] = base_df['Rating'].apply(lambda row: ratings_dict[row])
 
 # Are there reviewers that have submitted to more than one reviews ?
@@ -68,7 +68,7 @@ base_df['Review_Tokens_Lemma'] = base_df['Review_Tokens_Lemma'].apply(lambda row
 
 base_df['Reviews_Clean'] = base_df['Review_Tokens_Lemma'].apply(lambda row: ' '.join([x for x in row]))
 
-base_df['Review_Bigram'] = base_df['Review_Tokens_Lemma'].apply(lambda row: tp.sentenceToNGramTokens(text=row, ngram_size=2))
+base_df['Review_Bigram'] = base_df['Review_Tokens_Lemma'].apply(lambda row: tp.sentence_to_ngram_tokens(text=row, ngram_size=2))
 base_df['Review_Bigram_Sentence'] = base_df['Review_Bigram'].apply(lambda row: ' '.join([x for x in row]))
 
 
@@ -117,13 +117,13 @@ cv = vectorizer.fit_transform(base_df['Review_Bigram_Sentence']) #.toarray()
 cv.shape # (15407, 800)
 
 
-def countVectorizerToDict(vectorizer: CountVectorizer,
+def countVectorizer_to_dict(vectorizer: CountVectorizer,
                           matrix: csr_matrix) -> dict:
     feature_names = vectorizer.get_feature_names()
     counts = np.asarray(matrix.sum(axis=0))[0]
     return dict(zip(feature_names, counts))
 
-word_counts = countVectorizerToDict(vectorizer=vectorizer, matrix=cv)
+word_counts = countVectorizer_to_dict(vectorizer=vectorizer, matrix=cv)
 
 
 from sklearn.decomposition import LatentDirichletAllocation

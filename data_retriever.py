@@ -7,7 +7,7 @@ project_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(project_dir)
 
 import trustplt as pilot
-from helpers.utilities import flushLastProcessedPage
+from helpers.utilities import flust_last_processed_page
 
 json_loc = 'config.json'
 
@@ -34,7 +34,7 @@ base_df = pd.read_csv(reviews_base_fp, sep=',')
 print('Base file has {0} rows and {1} unique Ids \n\n'.format(base_df.shape[0],
       len(base_df['Id'].unique())))
 
-new_reviews_df = pilot.trustPltSniffer(base_domain=source_url,
+new_reviews_df = pilot.trustplt_sniffer(base_domain=source_url,
                                        starting_page=starting_page,
                                        steps=steps,
                                        processed_urls_f=processed_pages_fp,
@@ -51,7 +51,7 @@ base_df_updated.to_csv(reviews_base_fp, sep=',', index=False)
 
 print('Data retrieval for {0} finished...'.format(company))
 
-config['starting_page'] = flushLastProcessedPage(processed_urls_f=processed_pages_fp, company_name=company)
+config['starting_page'] = flust_last_processed_page(processed_urls_f=processed_pages_fp, company_name=company)
 
 with open(json_loc, 'w') as json_file:
     json.dump(config, json_file)

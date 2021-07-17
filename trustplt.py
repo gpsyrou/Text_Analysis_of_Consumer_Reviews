@@ -9,10 +9,10 @@ from typing import List, Mapping
 from bs4 import (BeautifulSoup,
                  element)
 
-from helpers.utilities import retrieveProcessedPages, NoDataRetrievedError
+from helpers.utilities import retrieve_processed_pages, NoDataRetrievedError
 
 
-def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
+def reviews_page_to_html(target_url: str) -> BeautifulSoup:
     """
     Given a website link (URL), retrieve the corresponding website in an html
     format.
@@ -32,7 +32,7 @@ def reviewsPageToHTMLObject(target_url: str) -> BeautifulSoup:
         return response_html
 
 
-def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
+def retrieve_next_page(reviews_html: BeautifulSoup) -> str:
     """
     Given a source_page as an html object, retrieve the url for the next page.
     """
@@ -45,7 +45,7 @@ def retrieveNextPage(reviews_html: BeautifulSoup) -> str:
         return next_page
 
 
-def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
+def extract_total_num_of_reviews(reviews_html: BeautifulSoup,
                                 rvw_num_att='headline__review-count') -> int:
     
     rev_num_atr = reviews_html.find_all('span', attrs={'class': rvw_num_att})
@@ -54,8 +54,8 @@ def extractTotalNumberOfReviews(reviews_html: BeautifulSoup,
     return int(rev_num_atr)
 
 
-def retrieveReviews(reviews_html: BeautifulSoup,
-                    rvw_section_att='review-card') -> element.ResultSet:
+def retrieve_reviews(reviews_html: BeautifulSoup,
+                     rvw_section_att='review-card') -> element.ResultSet:
     """
     The function returns an element.ResultSet, where each element is a tag
     that contain all the information of the reviews. The ResultSet has a length
@@ -64,7 +64,7 @@ def retrieveReviews(reviews_html: BeautifulSoup,
     return reviews_html.find_all('div', attrs={'class': rvw_section_att})
 
 
-def getReviewTitle(review: element.Tag,
+def get_review_title(review: element.Tag,
                    rvw_title_att='review-content__title') -> str:
     title_obj = review.find_all('h2', attrs={'class': rvw_title_att})
     title = [obj.get_text() for obj in title_obj]
@@ -74,20 +74,20 @@ def getReviewTitle(review: element.Tag,
         raise NoDataRetrievedError
 
 
-def getReviewerId(review: element.Tag,
+def get_review_id(review: element.Tag,
                   rvw_userid_att='consumer-information') -> str:
     reviewer_id_obj = review.find_all('a', attrs={'class': rvw_userid_att})
     
     return reviewer_id_obj[0].get('href').replace('/users/', '')
 
 
-def getReviewUniqueId(review: element.Tag) -> str:
+def get_review_unique_id(review: element.Tag) -> str:
     review_id_obj = review.find_all('article', attrs={'class': 'review'})
     
     return review_id_obj[0].get('id')
 
 
-def getReviewText(review: element.Tag,
+def get_review_text(review: element.Tag,
                   rvw_text_att='review-content__text') -> str:
     text_obj = review.find_all('p', attrs={'class': rvw_text_att})
     text = [obj.get_text() for obj in text_obj]
@@ -97,7 +97,7 @@ def getReviewText(review: element.Tag,
         pass
 
 
-def getReviewRating(review: element.Tag,
+def get_review_rating(review: element.Tag,
                     ratings_dict: Mapping[int, str],
                     rvw_rating_att='star-rating star-rating--medium') -> dict:
     rating_obj = review.find_all('div', attrs={'class': rvw_rating_att})
@@ -109,7 +109,7 @@ def getReviewRating(review: element.Tag,
     return rating_str
 
 
-def getReviewDateTime(review: element.Tag):
+def get_review_datetime(review: element.Tag):
     """
     The function currently is extracting only the date not the time.
     """
@@ -125,10 +125,10 @@ def getReviewDateTime(review: element.Tag):
     return published_date.strftime("%Y-%m-%d %H:%M")
 
 
-def reviewsPageToDataFrame(reviews: element.ResultSet,
-                           ratings_dict: Mapping[int, str],
-                           col_names: List['str'],
-                           company_name: 'str') -> pd.core.frame.DataFrame:
+def reviews_page_to_df(reviews: element.ResultSet,
+                        ratings_dict: Mapping[int, str],
+                        col_names: List['str'],
+                        company_name: 'str') -> pd.core.frame.DataFrame:
     """
     Transform a single page of reviews into a pandas DataFrame. Columns are 
     following the order as defined in col_names.
@@ -142,12 +142,12 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
     ratings_ls = []
     
     for i in range(0, len(reviews)):
-        review_id_ls.append(getReviewUniqueId(reviews[i]))
-        reviewer_id_ls.append(getReviewerId(reviews[i]))
-        title_ls.append(getReviewTitle(reviews[i]))
-        text_ls.append(getReviewText(reviews[i]))
-        datetime_ls.append(getReviewDateTime(reviews[i]))
-        ratings_ls.append(getReviewRating(reviews[i],
+        review_id_ls.append(get_review_unique_id(reviews[i]))
+        reviewer_id_ls.append(get_review_id(reviews[i]))
+        title_ls.append(get_review_title(reviews[i]))
+        text_ls.append(get_review_text(reviews[i]))
+        datetime_ls.append(get_review_datetime(reviews[i]))
+        ratings_ls.append(get_review_rating(reviews[i],
                                           ratings_dict=ratings_dict))
 
     reviews_df = pd.DataFrame(list(zip(company_name_ls,
@@ -160,7 +160,7 @@ def reviewsPageToDataFrame(reviews: element.ResultSet,
     return reviews_df
 
 
-def trustPltSniffer(base_domain: str,
+def trustplt_sniffer(base_domain: str,
                     starting_page: str,
                     steps: int,
                     processed_urls_f: str,
@@ -196,15 +196,15 @@ def trustPltSniffer(base_domain: str,
     """
     pages_ls = []
     landing_page = base_domain + starting_page
-    processed_pages = retrieveProcessedPages(processed_urls_f)
+    processed_pages = retrieve_processed_pages(processed_urls_f)
     
     with open(processed_urls_f, 'a') as file:
         while steps != 0:
-            reviews_page_html = reviewsPageToHTMLObject(landing_page)
+            reviews_page_html = reviews_page_to_html(landing_page)
             try:
-                page = retrieveNextPage(reviews_page_html)
-                reviews = retrieveReviews(reviews_page_html)
-                df = reviewsPageToDataFrame(reviews,
+                page = retrieve_next_page(reviews_page_html)
+                reviews = retrieve_reviews(reviews_page_html)
+                df = reviews_page_to_df(reviews,
                                             ratings_dict=ratings_dict,
                                             col_names=col_names,
                                             company_name=company_name)

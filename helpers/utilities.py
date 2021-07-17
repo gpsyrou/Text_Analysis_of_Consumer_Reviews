@@ -6,12 +6,12 @@ class NoDataRetrievedError(Exception):
         self.msg = 'No data could be retrieved or field was empty'
 
 
-def splitRatingsColumn(rating_text):
+def split_ratings_col(rating_text):
     rating_text = rating_text.replace('\'','').replace('{','').replace('}','')
     return rating_text[0], rating_text[3:]
 
 
-def retrieveProcessedPages(input_file: str) -> List['str']:
+def retrieve_processed_pages(input_file: str) -> List['str']:
     """
     Returns a list of all the links that are already processed.
     """
@@ -22,7 +22,7 @@ def retrieveProcessedPages(input_file: str) -> List['str']:
     return processed_pages
 
 
-def flushLastProcessedPage(processed_urls_f: str,
+def flust_last_processed_page(processed_urls_f: str,
                            company_name: str) -> 'str':
     """
     Read through 'processed_urls_f' and retrieve the last processed web url for
@@ -40,6 +40,6 @@ def flushLastProcessedPage(processed_urls_f: str,
     return relevant_urls[-1]
 
 
-def getRatingsMapping():
+def get_ratings_mapping():
     return {1: 'Bad', 2: 'Poor', 3: 'Average', 4: 'Great', 5: 'Excellent'}      
 

@@ -25,6 +25,7 @@ class LDAModeller:
 
     def computeCountVectMatrix(self):
         try:
+   
             self.cv_matrix = self.vectorizer.fit_transform(self.input_df[self.reviews_col])
             self.cv_matrix_shape = self.cv_matrix.shape
             self.cv_feature_names = self.vectorizer.get_feature_names()           

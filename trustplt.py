@@ -197,12 +197,12 @@ def trustplt_sniffer(base_domain: str,
     pages_ls = []
     landing_page = base_domain + starting_page
     processed_pages = retrieve_processed_pages(processed_urls_f)
-    
     with open(processed_urls_f, 'a') as file:
         while steps != 0:
             reviews_page_html = reviews_page_to_html(landing_page)
             try:
                 page = retrieve_next_page(reviews_page_html)
+                print('processing: {0}'.format(page))
                 reviews = retrieve_reviews(reviews_page_html)
                 df = reviews_page_to_df(reviews,
                                             ratings_dict=ratings_dict,
@@ -216,7 +216,8 @@ def trustplt_sniffer(base_domain: str,
                 landing_page = base_domain + page
                 steps -= 1
                 time.sleep(1)
-            except IndexError:
+            except IndexError as e:
+                print(e)
                 pass
     file.close()
 

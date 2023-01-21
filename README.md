@@ -1,4 +1,5 @@
-# Description
+# Topic Modelling with NLP & Latent Dirichlet Allocation on Customer Reviews
+![Python](https://img.shields.io/badge/-Python-000?&logo=Python) ![Jupyter Notebook](https://img.shields.io/badge/Jupyter-Notebook-orange?&logo=Jupyter)
 
 Purpose of this project is to leverage reviews about major delivery companies that are operating in the UK, and perform NLP tasks to analyze different aspects of the reviews like the sentiment, most common words, probability distributions across word sequences, and more.
 

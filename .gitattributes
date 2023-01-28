@@ -1,3 +1,7 @@
-* linguist-vendored
-*.py linguist-vendored=true
-*.ipynb linguist-vendored=true
+# Jupyter notebook
+
+# For text count
+# *.ipynb  text
+
+# To ignore it use below
+# *.ipynb linguist-documentation

@@ -25,13 +25,11 @@ graph   LR
     J --> K[Build UI]
 ```
 
-### Version 1.0:
+### Version 1.0: (Most recent version of the Notebook can be found here: <a href="https://github.com/gpsyrou/Text_Analysis_of_Consumer_Reviews/blob/main/jupyter_notebook/reviews.ipynb">V1.0 Notebook</a>)
 
 - [x] Impementation of the v1.0 of web scraper and data collection API 
 - [x] Developed a standard LDA model for topic identification
 - [x] Created first version of visualizations to present the results
-
-    V1.0 Notebook: <a href="https://github.com/gpsyrou/Text_Analysis_of_Consumer_Reviews/blob/main/jupyter_notebook/reviews.ipynb">Link</a>
 
 ## Web-Scrapping Tool and Data Retrieval
 

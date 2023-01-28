@@ -47,6 +47,18 @@ For the first iteration of the project, we have built the aforementioned package
 6. **Date**: Day of review submission
 7. **Rating**: The rating about the company, as submitted from the reviewer
 
+### Input Schema
+
+| Column/Feature                                  | Type | Description |
+|-------------------------------------------------|---| ---|
+| Company                                         | NVARCHAR | Name of the delivery company |
+| Id                                              | NVARCHAR | Id of the review |
+| Reviewer_Id                                     | NVARCHAR | Id of the reviewer    |
+| Title                                           | NVARCHAR | Title of the review    |
+| Review                                          | NVARCHAR | The review itself - free text field    |
+| Date                                            | DATE     | Day that the review was submitted    |
+| Rating                                          | BIGINT   | Rating (1-5)|
+
 
 ## Data Retrieval API
 

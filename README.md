@@ -31,6 +31,8 @@ graph   LR
 - [x] Developed a standard LDA model for topic identification
 - [x] Created first version of visualizations to present the results
 
+    V1.0 Notebook: <a href="https://github.com/gpsyrou/Text_Analysis_of_Consumer_Reviews/blob/main/jupyter_notebook/reviews.ipynb">Link</a>
+
 ## Web-Scrapping Tool and Data Retrieval
 
 In order to collect the reviews directly from the TrustPilot website, we have created a web-scrapping tool that allowed us to automate this process across different companies & their corresponding reviews. This tool is iterating across different pages of the website and collects the reviews and any other relevant information, with the output being stored in CSV files. Moreover, we have packaged the tool into a python library. Hence, if you are thinking of working on a similar project where you need to retrieve data from TrustPilot, you can install the package that you can find <a href="https://github.com/gpsyrou/Text_Analysis_of_Consumer_Reviews/blob/main/trustplt.py" style="text-decoration:none">here</a>. As of January 2023, the package contains the main functionalities to collect many different information from the website, like the reviews, reviewer_id, date of the review, user rating, and more. 

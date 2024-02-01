@@ -5,7 +5,6 @@ from typing import List
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 
-
 class LDAModeller:
     """ Common class used to perform an end-to-end Latent Dirichlet Allocation
     analysis. The base object of the class is a Pandas Dataframe.
